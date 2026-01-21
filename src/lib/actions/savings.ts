@@ -134,3 +134,37 @@ export async function getSavingsByTarget(targetId: string) {
         return [];
     }
 }
+
+export async function withdrawSavings(formData: FormData) {
+    const user = await getCurrentUser();
+    if (!user) return { error: "Silakan login terlebih dahulu" };
+
+    const targetId = formData.get("targetId") as string;
+    const amount = formData.get("amount") as string;
+    const source = formData.get("source") as string || "Penarikan Dana";
+
+    if (!targetId || !amount) {
+        return { error: "Target dan nominal harus diisi" };
+    }
+
+    try {
+        // Record as negative amount to decrease the collection
+        const negativeAmount = -Math.abs(parseFloat(amount));
+
+        await db.insert(savings).values({
+            id: uuidv4(),
+            targetId,
+            userId: user.id,
+            amount: negativeAmount.toString(),
+            source,
+        });
+
+        revalidatePath("/");
+        revalidatePath("/target");
+        revalidatePath("/laporan");
+        return { success: true };
+    } catch (error) {
+        console.error("Withdraw Savings Error:", error);
+        return { error: "Gagal memproses penarikan" };
+    }
+}

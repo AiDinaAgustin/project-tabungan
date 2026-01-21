@@ -7,6 +7,7 @@ import NewTargetModal from "@/components/NewTargetModal";
 import EditTargetModal from "@/components/EditTargetModal";
 import SavingsModal from "@/components/SavingsModal";
 import TargetDetailModal from "@/components/TargetDetailModal";
+import WithdrawModal from "@/components/WithdrawModal";
 import { getTargets, deleteTarget } from "@/lib/actions/target";
 import { getCurrentUser } from "@/lib/actions/auth";
 
@@ -15,10 +16,12 @@ export default function TargetPage() {
     const [isEditTargetModalOpen, setIsEditTargetModalOpen] = useState(false);
     const [isSavingsModalOpen, setIsSavingsModalOpen] = useState(false);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
     const [targets, setTargets] = useState<any[]>([]);
     const [selectedTarget, setSelectedTarget] = useState<any>(null);
     const [targetToEdit, setTargetToEdit] = useState<any>(null);
     const [targetForDetail, setTargetForDetail] = useState<any>(null);
+    const [targetForWithdraw, setTargetForWithdraw] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<any>(null);
 
@@ -52,6 +55,11 @@ export default function TargetPage() {
         setIsDetailModalOpen(true);
     };
 
+    const handleWithdrawClick = (target: any) => {
+        setTargetForWithdraw(target);
+        setIsWithdrawModalOpen(true);
+    };
+
     const handleDeleteClick = async (id: string) => {
         const result = await deleteTarget(id);
         if (result.success) {
@@ -61,7 +69,7 @@ export default function TargetPage() {
         }
     };
 
-    const isAnyModalOpen = isNewTargetModalOpen || isEditTargetModalOpen || isSavingsModalOpen || isDetailModalOpen;
+    const isAnyModalOpen = isNewTargetModalOpen || isEditTargetModalOpen || isSavingsModalOpen || isDetailModalOpen || isWithdrawModalOpen;
 
     return (
         <>
@@ -95,6 +103,14 @@ export default function TargetPage() {
                 isOpen={isDetailModalOpen}
                 onClose={() => setIsDetailModalOpen(false)}
                 target={targetForDetail}
+            />
+            <WithdrawModal
+                isOpen={isWithdrawModalOpen}
+                onClose={() => {
+                    setIsWithdrawModalOpen(false);
+                    fetchData();
+                }}
+                defaultTarget={targetForWithdraw}
             />
 
             <main className={`max-w-7xl mx-auto px-8 py-10 ${isAnyModalOpen ? "blur-sm pointer-events-none" : ""}`}>
@@ -161,6 +177,7 @@ export default function TargetPage() {
                                     onEdit={() => handleEditClick(target)}
                                     onDelete={() => handleDeleteClick(target.id)}
                                     onDetail={() => handleDetailClick(target)}
+                                    onWithdraw={() => handleWithdrawClick(target)}
                                 />
                             );
                         })

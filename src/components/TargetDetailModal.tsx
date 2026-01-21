@@ -170,30 +170,34 @@ export default function TargetDetailModal({
                         </div>
                     ) : history.length > 0 ? (
                         <div className="space-y-3">
-                            {history.map((item) => (
-                                <div key={item.id} className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-100 hover:border-[#7ca29d]/30 transition-all group">
-                                    <div className="flex items-center gap-4">
-                                        <div className="bg-white w-10 h-10 rounded-full flex items-center justify-center border border-slate-100 shadow-sm text-[10px] font-bold text-[#7ca29d]">
-                                            {item.userName?.[0]}
+                            {history.map((item) => {
+                                const amountValue = Number(item.amount);
+                                const isWithdrawal = amountValue < 0;
+                                return (
+                                    <div key={item.id} className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-100 hover:border-[#7ca29d]/30 transition-all group">
+                                        <div className="flex items-center gap-4">
+                                            <div className={`bg-white w-10 h-10 rounded-full flex items-center justify-center border border-slate-100 shadow-sm text-[10px] font-bold ${isWithdrawal ? "text-rose-500" : "text-[#7ca29d]"}`}>
+                                                {item.userName?.[0]}
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-700">{item.userName}</p>
+                                                <p className="text-[10px] text-slate-400 font-medium">
+                                                    {new Date(item.createdAt).toLocaleDateString("id-ID", {
+                                                        day: "2-digit",
+                                                        month: "short",
+                                                        year: "numeric",
+                                                        hour: "2-digit",
+                                                        minute: "2-digit"
+                                                    })} • {item.source}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-sm font-bold text-slate-700">{item.userName}</p>
-                                            <p className="text-[10px] text-slate-400 font-medium">
-                                                {new Date(item.createdAt).toLocaleDateString("id-ID", {
-                                                    day: "2-digit",
-                                                    month: "short",
-                                                    year: "numeric",
-                                                    hour: "2-digit",
-                                                    minute: "2-digit"
-                                                })} • {item.source}
-                                            </p>
-                                        </div>
+                                        <p className={`text-sm font-extrabold ${isWithdrawal ? "text-rose-600" : "text-slate-800"}`}>
+                                            {isWithdrawal ? "- " : "+ "} Rp {Math.abs(amountValue).toLocaleString("id-ID")}
+                                        </p>
                                     </div>
-                                    <p className="text-sm font-extrabold text-slate-800">
-                                        + Rp {Number(item.amount).toLocaleString("id-ID")}
-                                    </p>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     ) : (
                         <div className="text-center py-12">

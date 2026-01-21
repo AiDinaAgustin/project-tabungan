@@ -43,34 +43,38 @@ export default function MonthlyHistoryModal({
                 <div className="p-8 max-h-[60vh] overflow-y-auto">
                     {history.length > 0 ? (
                         <div className="space-y-4">
-                            {history.map((item) => (
-                                <div
-                                    key={item.id}
-                                    className="flex items-center justify-between p-4 rounded-2xl border border-slate-50 bg-slate-50/30 hover:bg-white hover:shadow-md transition-all group"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-[#7ca29d]">
-                                            <span className="material-symbols-outlined text-xl">savings</span>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-bold text-slate-800">{item.targetTitle}</p>
-                                            <div className="flex items-center gap-2 mt-0.5">
-                                                <span className="text-[10px] font-bold text-[#7ca29d] uppercase tracking-wider">{item.userName}</span>
-                                                <span className="text-slate-300">•</span>
-                                                <span className="text-xs text-slate-400 font-medium">
-                                                    {new Date(item.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' })}
-                                                </span>
+                            {history.map((item) => {
+                                const amountValue = parseFloat(item.amount);
+                                const isWithdrawal = amountValue < 0;
+                                return (
+                                    <div
+                                        key={item.id}
+                                        className="flex items-center justify-between p-4 rounded-2xl border border-slate-50 bg-slate-50/30 hover:bg-white hover:shadow-md transition-all group"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className={`w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center ${isWithdrawal ? "text-rose-500" : "text-[#7ca29d]"}`}>
+                                                <span className="material-symbols-outlined text-xl">{isWithdrawal ? "payments" : "savings"}</span>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-slate-800">{item.targetTitle}</p>
+                                                <div className="flex items-center gap-2 mt-0.5">
+                                                    <span className={`text-[10px] font-bold ${isWithdrawal ? "text-rose-400" : "text-[#7ca29d]"} uppercase tracking-wider`}>{item.userName}</span>
+                                                    <span className="text-slate-300">•</span>
+                                                    <span className="text-xs text-slate-400 font-medium">
+                                                        {new Date(item.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' })}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
+                                        <div className="text-right">
+                                            <p className={`text-base font-black ${isWithdrawal ? "text-rose-600" : "text-emerald-600"}`}>
+                                                {isWithdrawal ? "- " : "+ "}Rp {Math.abs(amountValue).toLocaleString("id-ID")}
+                                            </p>
+                                            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">{item.source}</p>
+                                        </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="text-base font-black text-emerald-600">
-                                            +Rp {parseInt(item.amount).toLocaleString("id-ID")}
-                                        </p>
-                                        <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">{item.source}</p>
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     ) : (
                         <div className="py-12 text-center">

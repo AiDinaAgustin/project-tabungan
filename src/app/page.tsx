@@ -177,20 +177,23 @@ export default function Home() {
                 ) : history.length > 0 ? (
                   history.map((item) => {
                     const isYou = item.userName === user?.name;
+                    const amountValue = parseFloat(item.amount);
+                    const isWithdrawal = amountValue < 0;
+
                     return (
                       <HistoryItem
                         key={item.id}
-                        name={isYou ? "Anda" : item.userName}
+                        name={item.userName}
                         isYou={isYou}
                         source={item.source}
                         time={new Date(item.createdAt).toLocaleDateString("id-ID")}
-                        amount={`+Rp ${parseInt(item.amount).toLocaleString("id-ID")}`}
-                        destination={`Ke ${item.targetTitle}`}
-                        borderColor={isYou ? "border-[#7ca29d]" : "border-amber-400"}
-                        iconBg={isYou ? "bg-[#e0f2f1]" : "bg-[#fef3c7]"}
-                        iconColor={isYou ? "text-[#7ca29d]" : "text-amber-600"}
-                        icon={isYou ? "person" : "partner_exchange"}
-                        amountColor={isYou ? "text-[#7ca29d]" : "text-amber-600"}
+                        amount={`${isWithdrawal ? "- " : "+ "}Rp ${Math.abs(amountValue).toLocaleString("id-ID")}`}
+                        destination={isWithdrawal ? `Dari ${item.targetTitle}` : `Ke ${item.targetTitle}`}
+                        borderColor={isWithdrawal ? "border-rose-400" : isYou ? "border-[#7ca29d]" : "border-amber-400"}
+                        iconBg={isWithdrawal ? "bg-rose-50" : isYou ? "bg-[#e0f2f1]" : "bg-[#fef3c7]"}
+                        iconColor={isWithdrawal ? "text-rose-500" : isYou ? "text-[#7ca29d]" : "text-amber-600"}
+                        icon={isWithdrawal ? "payments" : isYou ? "person" : "partner_exchange"}
+                        amountColor={isWithdrawal ? "text-rose-600" : isYou ? "text-[#7ca29d]" : "text-amber-600"}
                       />
                     );
                   })

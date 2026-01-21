@@ -26,6 +26,7 @@ interface TargetGoalCardProps {
     onEdit?: () => void;
     onDelete?: () => void;
     onDetail?: () => void;
+    onWithdraw?: () => void;
 }
 
 export default function TargetGoalCard({
@@ -46,6 +47,7 @@ export default function TargetGoalCard({
     onEdit,
     onDelete,
     onDetail,
+    onWithdraw,
 }: TargetGoalCardProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -184,6 +186,16 @@ export default function TargetGoalCard({
                             >
                                 <span className="material-symbols-outlined text-slate-400 group-hover:text-[#7ca29d] text-xl transition-colors">history</span>
                                 <span className="text-sm font-bold text-slate-600 group-hover:text-slate-900">Lihat Detail</span>
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setIsMenuOpen(false);
+                                    onWithdraw?.();
+                                }}
+                                className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-rose-50 transition-colors group"
+                            >
+                                <span className="material-symbols-outlined text-slate-400 group-hover:text-rose-500 text-xl transition-colors">payments</span>
+                                <span className="text-sm font-bold text-slate-600 group-hover:text-rose-600">Ambil Uang</span>
                             </button>
                             <div className="h-px bg-slate-100 mx-4 my-1"></div>
                             <button

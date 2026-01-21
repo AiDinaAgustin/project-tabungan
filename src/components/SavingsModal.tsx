@@ -21,8 +21,7 @@ export default function SavingsModal({
     onClose,
     defaultTarget,
 }: SavingsModalProps) {
-    const [selectedAmount, setSelectedAmount] = useState("");
-    const [customAmount, setCustomAmount] = useState("");
+    const [amount, setAmount] = useState("");
     const [targetId, setTargetId] = useState("");
     const [targets, setTargets] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
@@ -37,7 +36,10 @@ export default function SavingsModal({
                     getTargets(),
                     import("@/lib/actions/auth").then(m => m.getCurrentUser())
                 ]);
-                setTargets(targetsData);
+                const filteredTargets = targetsData.filter(
+                    (t) => Number(t.collectedAmount) < Number(t.targetAmount)
+                );
+                setTargets(filteredTargets);
                 setUser(userData);
                 if (userData) setSaverId(userData.id);
                 if (defaultTarget) setTargetId(defaultTarget.id);
@@ -53,8 +55,8 @@ export default function SavingsModal({
 
         const formData = new FormData();
         formData.append("targetId", targetId);
-        formData.append("amount", customAmount || selectedAmount);
-        formData.append("source", "Tabungan Mandiri");
+        formData.append("amount", amount);
+        formData.append("source", "Tabungan Jago");
         formData.append("userId", saverId);
 
         const result = await addSavings(formData);
@@ -161,11 +163,8 @@ export default function SavingsModal({
                                     <button
                                         key={amt.value}
                                         type="button"
-                                        onClick={() => {
-                                            setSelectedAmount(amt.value);
-                                            setCustomAmount("");
-                                        }}
-                                        className={`py-3 rounded-xl border-2 font-bold text-sm transition-all ${selectedAmount === amt.value
+                                        onClick={() => setAmount(amt.value)}
+                                        className={`py-3 rounded-xl border-2 font-bold text-sm transition-all ${amount === amt.value
                                             ? "border-[#7ca29d] bg-[#e0f2f1]/30 text-[#7ca29d]"
                                             : "border-slate-100 hover:border-[#7ca29d]/50 text-slate-600"
                                             }`}
@@ -182,11 +181,8 @@ export default function SavingsModal({
                                     type="number"
                                     className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-lg font-extrabold focus:ring-2 focus:ring-[#7ca29d]/20 placeholder:text-slate-300 outline-none"
                                     placeholder="Ketik nominal..."
-                                    value={customAmount}
-                                    onChange={(e) => {
-                                        setCustomAmount(e.target.value);
-                                        setSelectedAmount("");
-                                    }}
+                                    value={amount}
+                                    onChange={(e) => setAmount(e.target.value)}
                                 />
                             </div>
                         </div>

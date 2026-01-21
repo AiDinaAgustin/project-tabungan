@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { targets, savings } from "@/lib/db/schema";
-import { eq, sql, or, inArray } from "drizzle-orm";
+import { eq, sql, or, inArray, desc } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { getCurrentUser } from "./auth";
 import { revalidatePath } from "next/cache";
@@ -32,7 +32,7 @@ export async function getTargets() {
         .leftJoin(savings, eq(targets.id, savings.targetId))
         .where(inArray(targets.userId, userIds))
         .groupBy(targets.id)
-        .orderBy(targets.createdAt);
+        .orderBy(desc(targets.createdAt));
 
     return results;
 }
@@ -82,5 +82,51 @@ export async function createTarget(formData: FormData) {
     } catch (error) {
         console.error("Create Target Error:", error);
         return { error: "Gagal membuat target baru" };
+    }
+}
+
+export async function updateTarget(id: string, formData: FormData) {
+    const user = await getCurrentUser();
+    if (!user) return { error: "Silakan login terlebih dahulu" };
+
+    const title = formData.get("title") as string;
+    const targetAmount = formData.get("targetAmount") as string;
+
+    if (!title || !targetAmount) {
+        return { error: "Judul dan nominal target harus diisi" };
+    }
+
+    try {
+        await db.update(targets)
+            .set({ title, targetAmount: targetAmount })
+            .where(eq(targets.id, id));
+
+        revalidatePath("/target");
+        revalidatePath("/");
+        revalidatePath("/laporan");
+        return { success: true };
+    } catch (error) {
+        console.error("Update Target Error:", error);
+        return { error: "Gagal memperbarui target" };
+    }
+}
+
+export async function deleteTarget(id: string) {
+    const user = await getCurrentUser();
+    if (!user) return { error: "Silakan login terlebih dahulu" };
+
+    try {
+        // Delete associated savings first
+        await db.delete(savings).where(eq(savings.targetId, id));
+        // Delete target
+        await db.delete(targets).where(eq(targets.id, id));
+
+        revalidatePath("/target");
+        revalidatePath("/");
+        revalidatePath("/laporan");
+        return { success: true };
+    } catch (error) {
+        console.error("Delete Target Error:", error);
+        return { error: "Gagal menghapus target" };
     }
 }

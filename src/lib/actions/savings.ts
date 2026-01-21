@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { savings, targets, users } from "@/lib/db/schema";
-import { eq, desc, inArray } from "drizzle-orm";
+import { eq, desc, inArray, and, gte, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { getCurrentUser } from "./auth";
 import { revalidatePath } from "next/cache";
@@ -57,6 +57,7 @@ export async function getSavingsHistory(limit = 10) {
                 createdAt: savings.createdAt,
                 targetTitle: targets.title,
                 userName: users.name,
+                userId: savings.userId,
             })
             .from(savings)
             .leftJoin(targets, eq(savings.targetId, targets.id))
@@ -68,6 +69,42 @@ export async function getSavingsHistory(limit = 10) {
         return results;
     } catch (error) {
         console.error("Get Savings History Error:", error);
+        return [];
+    }
+}
+
+export async function getFinancialInsights() {
+    const user = await getCurrentUser();
+    if (!user) return [];
+
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const userIds = [user.id];
+    if (user.partnerId) {
+        userIds.push(user.partnerId);
+    }
+
+    try {
+        const results = await db
+            .select({
+                userId: savings.userId,
+                userName: users.name,
+                totalAmount: sql<number>`COALESCE(SUM(${savings.amount}), 0)`,
+            })
+            .from(savings)
+            .leftJoin(users, eq(savings.userId, users.id))
+            .where(
+                and(
+                    inArray(savings.userId, userIds),
+                    gte(savings.createdAt, firstDayOfMonth)
+                )
+            )
+            .groupBy(savings.userId, users.name);
+
+        return results;
+    } catch (error) {
+        console.error("Get Financial Insights Error:", error);
         return [];
     }
 }

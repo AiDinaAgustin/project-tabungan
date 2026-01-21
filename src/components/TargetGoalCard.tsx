@@ -1,3 +1,5 @@
+import { useState, useRef, useEffect } from "react";
+
 interface Contribution {
     name: string;
     initial: string;
@@ -21,6 +23,8 @@ interface TargetGoalCardProps {
     contributions: Contribution[];
     buttonVariant?: "primary" | "dark";
     onSaveClick?: () => void;
+    onEdit?: () => void;
+    onDelete?: () => void;
 }
 
 export default function TargetGoalCard({
@@ -38,7 +42,22 @@ export default function TargetGoalCard({
     contributions,
     buttonVariant = "primary",
     onSaveClick,
+    onEdit,
+    onDelete,
 }: TargetGoalCardProps) {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setIsMenuOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
     // Calculate stroke dashoffset for progress ring
     // Circumference = 2 * π * r = 2 * 3.14159 * 84 ≈ 527.78
     const circumference = 527.78;
@@ -131,19 +150,54 @@ export default function TargetGoalCard({
                     ))}
                 </div>
 
-                <div className="mt-auto flex gap-3">
+                <div className="mt-auto flex gap-3 relative" ref={menuRef}>
                     <button
                         onClick={onSaveClick}
-                        className={`flex-1 py-3.5 rounded-xl font-bold text-sm shadow-lg transition-all hover:opacity-90 ${buttonVariant === "primary"
+                        disabled={progress >= 100}
+                        className={`flex-1 py-3.5 rounded-xl font-bold text-sm shadow-lg transition-all hover:opacity-90 ${progress >= 100
+                            ? "bg-slate-200 text-slate-500 cursor-not-allowed shadow-none"
+                            : buttonVariant === "primary"
                                 ? "bg-[#7ca29d] text-white shadow-[#7ca29d]/20"
                                 : "bg-slate-900 text-white"
                             }`}
                     >
-                        Menabung
+                        {progress >= 100 ? "Target Tercapai ✨" : "Menabung"}
                     </button>
-                    <button className="px-4 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors">
+                    <button
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        className="px-4 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors relative"
+                    >
                         <span className="material-symbols-outlined">settings</span>
                     </button>
+
+                    {/* Dropdown Menu */}
+                    {isMenuOpen && (
+                        <div className="absolute bottom-full right-0 mb-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-20">
+                            <button
+                                onClick={() => {
+                                    setIsMenuOpen(false);
+                                    onEdit?.();
+                                }}
+                                className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-slate-50 transition-colors"
+                            >
+                                <span className="material-symbols-outlined text-slate-400 text-xl">edit_note</span>
+                                <span className="text-sm font-bold text-slate-600">Ubah Target</span>
+                            </button>
+                            <div className="h-px bg-slate-100 mx-4 my-1"></div>
+                            <button
+                                onClick={() => {
+                                    setIsMenuOpen(false);
+                                    if (confirm("Apakah Anda yakin ingin menghapus target ini? Semua riwayat tabungan terkait juga akan dihapus.")) {
+                                        onDelete?.();
+                                    }
+                                }}
+                                className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-rose-50 transition-colors text-rose-500"
+                            >
+                                <span className="material-symbols-outlined text-rose-400 text-xl text-rose-500">delete_forever</span>
+                                <span className="text-sm font-bold">Hapus Target</span>
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

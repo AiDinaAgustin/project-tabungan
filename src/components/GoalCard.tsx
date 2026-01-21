@@ -10,7 +10,11 @@ interface GoalCardProps {
     progressTextColor: string;
     isPrimary?: boolean;
     onSaveClick?: () => void;
+    onEdit?: () => void;
+    onDelete?: () => void;
 }
+
+import { useState, useRef, useEffect } from "react";
 
 export default function GoalCard({
     icon,
@@ -24,9 +28,60 @@ export default function GoalCard({
     progressTextColor,
     isPrimary = false,
     onSaveClick,
+    onEdit,
+    onDelete,
 }: GoalCardProps) {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setIsMenuOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
     return (
-        <div className="group bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all border border-slate-100">
+        <div className="group bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all border border-slate-100 relative">
+            <div className="absolute top-6 right-6" ref={menuRef}>
+                <button
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 transition-colors"
+                >
+                    <span className="material-symbols-outlined text-xl">more_vert</span>
+                </button>
+
+                {isMenuOpen && (
+                    <div className="absolute top-full right-0 mt-1 w-40 bg-white rounded-xl shadow-xl border border-slate-100 py-1 z-30">
+                        <button
+                            onClick={() => {
+                                setIsMenuOpen(false);
+                                onEdit?.();
+                            }}
+                            className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-slate-50 transition-colors"
+                        >
+                            <span className="material-symbols-outlined text-slate-400 text-lg">edit</span>
+                            <span className="text-sm font-bold text-slate-600">Edit</span>
+                        </button>
+                        <button
+                            onClick={() => {
+                                setIsMenuOpen(false);
+                                if (confirm("Hapus target ini?")) {
+                                    onDelete?.();
+                                }
+                            }}
+                            className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-rose-50 transition-colors text-rose-500"
+                        >
+                            <span className="material-symbols-outlined text-rose-400 text-lg">delete</span>
+                            <span className="text-sm font-bold">Hapus</span>
+                        </button>
+                    </div>
+                )}
+            </div>
+
             <div
                 className={`w-14 h-14 ${iconBg} rounded-xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110`}
             >
@@ -48,13 +103,18 @@ export default function GoalCard({
             </div>
             <button
                 onClick={onSaveClick}
-                className={`w-full py-3 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 ${isPrimary
-                    ? "bg-[#7ca29d] text-white shadow-lg shadow-[#7ca29d]/20 hover:bg-[#7ca29d]/90"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                disabled={progress >= 100}
+                className={`w-full py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${progress >= 100
+                    ? "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none"
+                    : isPrimary
+                        ? "bg-[#7ca29d] text-white shadow-lg shadow-[#7ca29d]/20 hover:bg-[#7ca29d]/90"
+                        : "bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-100"
                     }`}
             >
-                <span className="material-symbols-outlined text-lg">add_circle</span>
-                Menabung
+                <span className="material-symbols-outlined text-lg">
+                    {progress >= 100 ? "stars" : "add_circle"}
+                </span>
+                {progress >= 100 ? "Target Tercapai ✨" : "Menabung"}
             </button>
         </div>
     );

@@ -4,15 +4,18 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import TargetGoalCard from "@/components/TargetGoalCard";
 import NewTargetModal from "@/components/NewTargetModal";
+import EditTargetModal from "@/components/EditTargetModal";
 import SavingsModal from "@/components/SavingsModal";
-import { getTargets } from "@/lib/actions/target";
+import { getTargets, deleteTarget } from "@/lib/actions/target";
 import { getCurrentUser } from "@/lib/actions/auth";
 
 export default function TargetPage() {
     const [isNewTargetModalOpen, setIsNewTargetModalOpen] = useState(false);
+    const [isEditTargetModalOpen, setIsEditTargetModalOpen] = useState(false);
     const [isSavingsModalOpen, setIsSavingsModalOpen] = useState(false);
     const [targets, setTargets] = useState<any[]>([]);
     const [selectedTarget, setSelectedTarget] = useState<any>(null);
+    const [targetToEdit, setTargetToEdit] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<any>(null);
 
@@ -36,7 +39,21 @@ export default function TargetPage() {
         setIsSavingsModalOpen(true);
     };
 
-    const isAnyModalOpen = isNewTargetModalOpen || isSavingsModalOpen;
+    const handleEditClick = (target: any) => {
+        setTargetToEdit(target);
+        setIsEditTargetModalOpen(true);
+    };
+
+    const handleDeleteClick = async (id: string) => {
+        const result = await deleteTarget(id);
+        if (result.success) {
+            fetchData();
+        } else {
+            alert(result.error);
+        }
+    };
+
+    const isAnyModalOpen = isNewTargetModalOpen || isEditTargetModalOpen || isSavingsModalOpen;
 
     return (
         <>
@@ -49,6 +66,14 @@ export default function TargetPage() {
                     setIsNewTargetModalOpen(false);
                     fetchData();
                 }}
+            />
+            <EditTargetModal
+                isOpen={isEditTargetModalOpen}
+                onClose={() => {
+                    setIsEditTargetModalOpen(false);
+                    fetchData();
+                }}
+                target={targetToEdit}
             />
             <SavingsModal
                 isOpen={isSavingsModalOpen}
@@ -111,6 +136,8 @@ export default function TargetPage() {
                                     buttonVariant="primary"
                                     contributions={[]} // We could fetch this too, but for now empty
                                     onSaveClick={() => handleSaveClick(target)}
+                                    onEdit={() => handleEditClick(target)}
+                                    onDelete={() => handleDeleteClick(target.id)}
                                 />
                             );
                         })

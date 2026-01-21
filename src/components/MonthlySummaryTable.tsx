@@ -1,7 +1,6 @@
 interface MonthlySummaryRow {
     month: string;
     total: string;
-    totalColor: string;
     contributor: {
         name: string;
         initial: string;
@@ -9,14 +8,16 @@ interface MonthlySummaryRow {
         bgColor: string;
         textColor: string;
     };
+    growth: string;
     trend: "up" | "down" | "flat";
 }
 
 interface MonthlySummaryTableProps {
     data: MonthlySummaryRow[];
+    onRowClick?: (month: string) => void;
 }
 
-export default function MonthlySummaryTable({ data }: MonthlySummaryTableProps) {
+export default function MonthlySummaryTable({ data, onRowClick }: MonthlySummaryTableProps) {
     const getTrendIcon = (trend: string) => {
         switch (trend) {
             case "up":
@@ -63,7 +64,7 @@ export default function MonthlySummaryTable({ data }: MonthlySummaryTableProps) 
                                 Kontribusi Terbesar
                             </th>
                             <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">
-                                Trend
+                                Pertumbuhan
                             </th>
                         </tr>
                     </thead>
@@ -71,10 +72,16 @@ export default function MonthlySummaryTable({ data }: MonthlySummaryTableProps) 
                         {data.map((row) => (
                             <tr
                                 key={row.month}
-                                className="hover:bg-slate-50/50 transition-colors"
+                                className="hover:bg-slate-50/50 transition-colors cursor-pointer group"
+                                onClick={() => onRowClick?.(row.month)}
                             >
-                                <td className="px-8 py-5 font-bold">{row.month}</td>
-                                <td className={`px-8 py-5 text-right font-extrabold ${row.totalColor}`}>
+                                <td className="px-8 py-5 font-bold group-hover:text-[#7ca29d] transition-colors">
+                                    <div className="flex items-center gap-2">
+                                        {row.month}
+                                        <span className="material-symbols-outlined text-sm opacity-0 group-hover:opacity-100 transition-opacity">visibility</span>
+                                    </div>
+                                </td>
+                                <td className="px-8 py-5 text-right font-extrabold text-[#7ca29d]">
                                     {row.total}
                                 </td>
                                 <td className="px-8 py-5">
@@ -90,7 +97,15 @@ export default function MonthlySummaryTable({ data }: MonthlySummaryTableProps) 
                                     </div>
                                 </td>
                                 <td className="px-8 py-5 text-center">
-                                    {getTrendIcon(row.trend)}
+                                    <div className="flex items-center justify-center gap-2">
+                                        {getTrendIcon(row.trend)}
+                                        <span className={`text-xs font-bold ${row.trend === "up" ? "text-emerald-500" :
+                                            row.trend === "down" ? "text-rose-500" :
+                                                "text-slate-400"
+                                            }`}>
+                                            {row.growth === "0%" ? "-" : row.growth}
+                                        </span>
+                                    </div>
                                 </td>
                             </tr>
                         ))}

@@ -25,53 +25,41 @@ export default function AllocationChart({ allocations }: AllocationChartProps) {
                         stroke="currentColor"
                         strokeWidth="14"
                     />
-                    {/* DP Rumah Impian - 40% */}
-                    <circle
-                        className="text-amber-400"
-                        cx="50"
-                        cy="50"
-                        fill="transparent"
-                        r="40"
-                        stroke="currentColor"
-                        strokeDasharray="251.2"
-                        strokeDashoffset="150.72"
-                        strokeLinecap="round"
-                        strokeWidth="14"
-                    />
-                    {/* Liburan Jepang - 35% */}
-                    <circle
-                        className="text-[#7ca29d]"
-                        cx="50"
-                        cy="50"
-                        fill="transparent"
-                        r="40"
-                        stroke="currentColor"
-                        strokeDasharray="251.2"
-                        strokeDashoffset="163.28"
-                        strokeLinecap="round"
-                        strokeWidth="14"
-                        transform="rotate(144 50 50)"
-                    />
-                    {/* Dana Darurat - 25% */}
-                    <circle
-                        className="text-slate-300"
-                        cx="50"
-                        cy="50"
-                        fill="transparent"
-                        r="40"
-                        stroke="currentColor"
-                        strokeDasharray="251.2"
-                        strokeDashoffset="188.4"
-                        strokeLinecap="round"
-                        strokeWidth="14"
-                        transform="rotate(270 50 50)"
-                    />
+                    {allocations.map((item, idx) => {
+                        const circumference = 251.2;
+                        const dashArray = (item.percentage / 100) * circumference;
+
+                        let cumulativePercentage = 0;
+                        for (let i = 0; i < idx; i++) {
+                            cumulativePercentage += allocations[i].percentage;
+                        }
+                        const rotation = (cumulativePercentage / 100) * 360;
+
+                        return (
+                            <circle
+                                key={item.name}
+                                cx="50"
+                                cy="50"
+                                fill="transparent"
+                                r="40"
+                                stroke={item.color}
+                                strokeDasharray={`${dashArray} ${circumference}`}
+                                strokeDashoffset="0"
+                                strokeLinecap="round"
+                                strokeWidth="14"
+                                transform={`rotate(${rotation} 50 50)`}
+                                style={{ transition: 'all 0.5s ease' }}
+                            />
+                        );
+                    })}
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
                         Terbagi
                     </span>
-                    <span className="text-xl font-extrabold">3 Kategori</span>
+                    <span className="text-xl font-extrabold whitespace-nowrap px-4">
+                        {allocations.length} Kategori
+                    </span>
                 </div>
             </div>
             <div className="space-y-3">

@@ -10,28 +10,34 @@ import InvitePartner from "@/components/InvitePartner";
 import TipsCard from "@/components/TipsCard";
 import Footer from "@/components/Footer";
 import SavingsModal from "@/components/SavingsModal";
-import { getTargets } from "@/lib/actions/target";
-import { getSavingsHistory } from "@/lib/actions/savings";
+import { getTargets, deleteTarget } from "@/lib/actions/target";
+import { getSavingsHistory, getFinancialInsights } from "@/lib/actions/savings";
 import { getCurrentUser } from "@/lib/actions/auth";
+import EditTargetModal from "@/components/EditTargetModal";
 
 export default function Home() {
   const [isSavingsModalOpen, setIsSavingsModalOpen] = useState(false);
+  const [isEditTargetModalOpen, setIsEditTargetModalOpen] = useState(false);
   const [selectedTarget, setSelectedTarget] = useState<any>(null);
+  const [targetToEdit, setTargetToEdit] = useState<any>(null);
   const [targets, setTargets] = useState<any[]>([]);
   const [history, setHistory] = useState<any[]>([]);
+  const [insights, setInsights] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
     setLoading(true);
-    const [targetsData, historyData, userData] = await Promise.all([
+    const [targetsData, historyData, userData, insightsData] = await Promise.all([
       getTargets(),
       getSavingsHistory(5),
-      getCurrentUser()
+      getCurrentUser(),
+      getFinancialInsights()
     ]);
     setTargets(targetsData);
     setHistory(historyData);
     setUser(userData);
+    setInsights(insightsData || []);
     setLoading(false);
   };
 
@@ -44,9 +50,35 @@ export default function Home() {
     setIsSavingsModalOpen(true);
   };
 
+  const handleEditClick = (target: any) => {
+    setTargetToEdit(target);
+    setIsEditTargetModalOpen(true);
+  };
+
+  const handleDeleteClick = async (id: string) => {
+    const result = await deleteTarget(id);
+    if (result.success) {
+      fetchData();
+    } else {
+      alert(result.error);
+    }
+  };
+
+  const isAnyModalOpen = isSavingsModalOpen || isEditTargetModalOpen;
+
   return (
     <>
       <Navbar />
+
+      {/* Modals */}
+      <EditTargetModal
+        isOpen={isEditTargetModalOpen}
+        onClose={() => {
+          setIsEditTargetModalOpen(false);
+          fetchData();
+        }}
+        target={targetToEdit}
+      />
 
       {/* Savings Modal */}
       <SavingsModal
@@ -58,7 +90,7 @@ export default function Home() {
         defaultTarget={selectedTarget}
       />
 
-      <main className={`max-w-7xl mx-auto px-8 py-10 ${isSavingsModalOpen ? "blur-sm pointer-events-none" : ""}`}>
+      <main className={`max-w-7xl mx-auto px-8 py-10 ${isAnyModalOpen ? "blur-sm pointer-events-none" : ""}`}>
         {/* Hero Glassmorphism Card */}
         <HeroCard
           totalAmount={`Rp ${targets.reduce((sum, t) => sum + parseFloat(t.collectedAmount), 0).toLocaleString("id-ID")}`}
@@ -103,6 +135,8 @@ export default function Home() {
                         progressTextColor="text-[#7ca29d]"
                         isPrimary={idx === 0}
                         onSaveClick={() => handleSaveClick(target)}
+                        onEdit={() => handleEditClick(target)}
+                        onDelete={() => handleDeleteClick(target.id)}
                       />
                     );
                   })
@@ -153,7 +187,7 @@ export default function Home() {
 
           {/* Sidebar */}
           <aside className="lg:col-span-4 space-y-8">
-            <FinancialInsights />
+            <FinancialInsights data={insights} />
             {!user?.partner && <InvitePartner />}
             <TipsCard />
           </aside>

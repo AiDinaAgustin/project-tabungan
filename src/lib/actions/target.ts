@@ -16,25 +16,33 @@ export async function getTargets() {
         userIds.push(user.partnerId);
     }
 
-    // Fetch targets with aggregated savings
-    const results = await db
-        .select({
-            id: targets.id,
-            title: targets.title,
-            targetAmount: targets.targetAmount,
-            icon: targets.icon,
-            iconBg: targets.iconBg,
-            iconColor: targets.iconColor,
-            progressColor: targets.progressColor,
-            collectedAmount: sql<number>`COALESCE(SUM(${savings.amount}), 0)`,
-        })
-        .from(targets)
-        .leftJoin(savings, eq(targets.id, savings.targetId))
-        .where(inArray(targets.userId, userIds))
-        .groupBy(targets.id)
-        .orderBy(desc(targets.createdAt));
+    try {
+        // Fetch targets with aggregated savings and the latest contribution info
+        const results = await db
+            .select({
+                id: targets.id,
+                title: targets.title,
+                targetAmount: targets.targetAmount,
+                icon: targets.icon,
+                iconBg: targets.iconBg,
+                iconColor: targets.iconColor,
+                progressColor: targets.progressColor,
+                collectedAmount: sql<number>`COALESCE(SUM(${savings.amount}), 0)`,
+                // Get details of the latest contribution
+                lastAmount: sql<string>`(SELECT amount FROM savings WHERE target_id = ${targets.id} ORDER BY created_at DESC LIMIT 1)`,
+                lastUserName: sql<string>`(SELECT name FROM users JOIN savings ON users.id = savings.user_id WHERE savings.target_id = ${targets.id} ORDER BY savings.created_at DESC LIMIT 1)`,
+            })
+            .from(targets)
+            .leftJoin(savings, eq(targets.id, savings.targetId))
+            .where(inArray(targets.userId, userIds))
+            .groupBy(targets.id)
+            .orderBy(desc(targets.createdAt));
 
-    return results;
+        return results;
+    } catch (error) {
+        console.error("Get Targets Error:", error);
+        return [];
+    }
 }
 
 export async function createTarget(formData: FormData) {

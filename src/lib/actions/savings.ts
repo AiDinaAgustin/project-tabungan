@@ -108,3 +108,29 @@ export async function getFinancialInsights() {
         return [];
     }
 }
+
+export async function getSavingsByTarget(targetId: string) {
+    const user = await getCurrentUser();
+    if (!user) return [];
+
+    try {
+        const results = await db
+            .select({
+                id: savings.id,
+                amount: savings.amount,
+                source: savings.source,
+                createdAt: savings.createdAt,
+                userName: users.name,
+                userId: savings.userId,
+            })
+            .from(savings)
+            .leftJoin(users, eq(savings.userId, users.id))
+            .where(eq(savings.targetId, targetId))
+            .orderBy(desc(savings.createdAt));
+
+        return results;
+    } catch (error) {
+        console.error("Get Savings By Target Error:", error);
+        return [];
+    }
+}

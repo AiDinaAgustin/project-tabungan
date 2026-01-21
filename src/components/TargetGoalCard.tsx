@@ -25,6 +25,7 @@ interface TargetGoalCardProps {
     onSaveClick?: () => void;
     onEdit?: () => void;
     onDelete?: () => void;
+    onDetail?: () => void;
 }
 
 export default function TargetGoalCard({
@@ -44,6 +45,7 @@ export default function TargetGoalCard({
     onSaveClick,
     onEdit,
     onDelete,
+    onDetail,
 }: TargetGoalCardProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -173,6 +175,17 @@ export default function TargetGoalCard({
                     {/* Dropdown Menu */}
                     {isMenuOpen && (
                         <div className="absolute bottom-full right-0 mb-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-20">
+                            <button
+                                onClick={() => {
+                                    setIsMenuOpen(false);
+                                    onDetail?.();
+                                }}
+                                className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-[#7ca29d]/5 transition-colors group"
+                            >
+                                <span className="material-symbols-outlined text-slate-400 group-hover:text-[#7ca29d] text-xl transition-colors">history</span>
+                                <span className="text-sm font-bold text-slate-600 group-hover:text-slate-900">Lihat Detail</span>
+                            </button>
+                            <div className="h-px bg-slate-100 mx-4 my-1"></div>
                             <button
                                 onClick={() => {
                                     setIsMenuOpen(false);

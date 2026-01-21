@@ -14,12 +14,15 @@ import { getTargets, deleteTarget } from "@/lib/actions/target";
 import { getSavingsHistory, getFinancialInsights } from "@/lib/actions/savings";
 import { getCurrentUser } from "@/lib/actions/auth";
 import EditTargetModal from "@/components/EditTargetModal";
+import TargetDetailModal from "@/components/TargetDetailModal";
 
 export default function Home() {
   const [isSavingsModalOpen, setIsSavingsModalOpen] = useState(false);
   const [isEditTargetModalOpen, setIsEditTargetModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedTarget, setSelectedTarget] = useState<any>(null);
   const [targetToEdit, setTargetToEdit] = useState<any>(null);
+  const [targetForDetail, setTargetForDetail] = useState<any>(null);
   const [targets, setTargets] = useState<any[]>([]);
   const [history, setHistory] = useState<any[]>([]);
   const [insights, setInsights] = useState<any[]>([]);
@@ -64,7 +67,12 @@ export default function Home() {
     }
   };
 
-  const isAnyModalOpen = isSavingsModalOpen || isEditTargetModalOpen;
+  const handleDetailClick = (target: any) => {
+    setTargetForDetail(target);
+    setIsDetailModalOpen(true);
+  };
+
+  const isAnyModalOpen = isSavingsModalOpen || isEditTargetModalOpen || isDetailModalOpen;
 
   return (
     <>
@@ -88,6 +96,12 @@ export default function Home() {
           fetchData();
         }}
         defaultTarget={selectedTarget}
+      />
+
+      <TargetDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        target={targetForDetail}
       />
 
       <main className={`max-w-7xl mx-auto px-8 py-10 ${isAnyModalOpen ? "blur-sm pointer-events-none" : ""}`}>
@@ -138,6 +152,7 @@ export default function Home() {
                         onSaveClick={() => handleSaveClick(target)}
                         onEdit={() => handleEditClick(target)}
                         onDelete={() => handleDeleteClick(target.id)}
+                        onDetail={() => handleDetailClick(target)}
                       />
                     );
                   })

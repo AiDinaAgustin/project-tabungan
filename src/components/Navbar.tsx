@@ -18,11 +18,12 @@ export default function Navbar() {
         { href: "/laporan", label: "Laporan" },
     ];
 
+    const fetchUser = async () => {
+        const data = await getCurrentUser();
+        setUser(data);
+    };
+
     useEffect(() => {
-        const fetchUser = async () => {
-            const data = await getCurrentUser();
-            setUser(data);
-        };
         fetchUser();
     }, []);
 
@@ -144,31 +145,6 @@ export default function Navbar() {
                                             </button>
                                         )}
                                     </div>
-                                </div>
-
-                                <div className="p-2 space-y-0.5">
-                                    <Link
-                                        href="#"
-                                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#7ca29d]/5 transition-colors group"
-                                    >
-                                        <span className="material-symbols-outlined text-slate-400 group-hover:text-[#7ca29d] transition-colors font-light">
-                                            edit_square
-                                        </span>
-                                        <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900">
-                                            {user?.partner ? "Edit Profil Kami" : "Edit Profil Saya"}
-                                        </span>
-                                    </Link>
-                                    <Link
-                                        href="#"
-                                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#7ca29d]/5 transition-colors group"
-                                    >
-                                        <span className="material-symbols-outlined text-slate-400 group-hover:text-[#7ca29d] transition-colors font-light">
-                                            account_balance_wallet
-                                        </span>
-                                        <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900">
-                                            Pengaturan Rekening
-                                        </span>
-                                    </Link>
                                 </div>
 
                                 <div className="p-2 border-t border-slate-50 bg-slate-50/50">

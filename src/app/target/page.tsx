@@ -6,6 +6,7 @@ import TargetGoalCard from "@/components/TargetGoalCard";
 import NewTargetModal from "@/components/NewTargetModal";
 import EditTargetModal from "@/components/EditTargetModal";
 import SavingsModal from "@/components/SavingsModal";
+import TargetDetailModal from "@/components/TargetDetailModal";
 import { getTargets, deleteTarget } from "@/lib/actions/target";
 import { getCurrentUser } from "@/lib/actions/auth";
 
@@ -13,9 +14,11 @@ export default function TargetPage() {
     const [isNewTargetModalOpen, setIsNewTargetModalOpen] = useState(false);
     const [isEditTargetModalOpen, setIsEditTargetModalOpen] = useState(false);
     const [isSavingsModalOpen, setIsSavingsModalOpen] = useState(false);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [targets, setTargets] = useState<any[]>([]);
     const [selectedTarget, setSelectedTarget] = useState<any>(null);
     const [targetToEdit, setTargetToEdit] = useState<any>(null);
+    const [targetForDetail, setTargetForDetail] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<any>(null);
 
@@ -44,6 +47,11 @@ export default function TargetPage() {
         setIsEditTargetModalOpen(true);
     };
 
+    const handleDetailClick = (target: any) => {
+        setTargetForDetail(target);
+        setIsDetailModalOpen(true);
+    };
+
     const handleDeleteClick = async (id: string) => {
         const result = await deleteTarget(id);
         if (result.success) {
@@ -53,7 +61,7 @@ export default function TargetPage() {
         }
     };
 
-    const isAnyModalOpen = isNewTargetModalOpen || isEditTargetModalOpen || isSavingsModalOpen;
+    const isAnyModalOpen = isNewTargetModalOpen || isEditTargetModalOpen || isSavingsModalOpen || isDetailModalOpen;
 
     return (
         <>
@@ -82,6 +90,11 @@ export default function TargetPage() {
                     fetchData();
                 }}
                 defaultTarget={selectedTarget}
+            />
+            <TargetDetailModal
+                isOpen={isDetailModalOpen}
+                onClose={() => setIsDetailModalOpen(false)}
+                target={targetForDetail}
             />
 
             <main className={`max-w-7xl mx-auto px-8 py-10 ${isAnyModalOpen ? "blur-sm pointer-events-none" : ""}`}>
@@ -119,6 +132,15 @@ export default function TargetPage() {
                             const goal = parseFloat(target.targetAmount);
                             const progress = Math.min(Math.round((collected / goal) * 100), 100);
 
+                            // Format last contribution if it exists
+                            const contributions = target.lastUserName ? [{
+                                name: target.lastUserName,
+                                initial: target.lastUserName[0].toUpperCase(),
+                                amount: `+Rp ${Number(target.lastAmount).toLocaleString("id-ID")}`,
+                                bgColor: target.lastUserName === user?.name ? "bg-[#e0f2f1]" : "bg-[#fef3c7]",
+                                textColor: target.lastUserName === user?.name ? "text-[#7ca29d]" : "text-amber-600",
+                            }] : [];
+
                             return (
                                 <TargetGoalCard
                                     key={target.id}
@@ -134,10 +156,11 @@ export default function TargetPage() {
                                     collectedColor={target.iconColor}
                                     target={`Rp ${goal.toLocaleString("id-ID")}`}
                                     buttonVariant="primary"
-                                    contributions={[]} // We could fetch this too, but for now empty
+                                    contributions={contributions}
                                     onSaveClick={() => handleSaveClick(target)}
                                     onEdit={() => handleEditClick(target)}
                                     onDelete={() => handleDeleteClick(target.id)}
+                                    onDetail={() => handleDetailClick(target)}
                                 />
                             );
                         })

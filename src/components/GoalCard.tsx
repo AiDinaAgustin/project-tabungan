@@ -12,6 +12,7 @@ interface GoalCardProps {
     onSaveClick?: () => void;
     onEdit?: () => void;
     onDelete?: () => void;
+    onDetail?: () => void;
 }
 
 import { useState, useRef, useEffect } from "react";
@@ -30,6 +31,7 @@ export default function GoalCard({
     onSaveClick,
     onEdit,
     onDelete,
+    onDetail,
 }: GoalCardProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -56,6 +58,16 @@ export default function GoalCard({
 
                 {isMenuOpen && (
                     <div className="absolute top-full right-0 mt-1 w-40 bg-white rounded-xl shadow-xl border border-slate-100 py-1 z-30">
+                        <button
+                            onClick={() => {
+                                setIsMenuOpen(false);
+                                onDetail?.();
+                            }}
+                            className="w-full px-4 py-2 text-left flex items-center gap-2 hover:bg-[#7ca29d]/5 transition-colors group"
+                        >
+                            <span className="material-symbols-outlined text-slate-400 group-hover:text-[#7ca29d] text-lg transition-colors">history</span>
+                            <span className="text-sm font-bold text-slate-600 group-hover:text-slate-900">Detail</span>
+                        </button>
                         <button
                             onClick={() => {
                                 setIsMenuOpen(false);

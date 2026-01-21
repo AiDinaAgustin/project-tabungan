@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import HeroCard from "@/components/HeroCard";
 import GoalCard from "@/components/GoalCard";
@@ -10,13 +10,37 @@ import InvitePartner from "@/components/InvitePartner";
 import TipsCard from "@/components/TipsCard";
 import Footer from "@/components/Footer";
 import SavingsModal from "@/components/SavingsModal";
+import { getTargets } from "@/lib/actions/target";
+import { getSavingsHistory } from "@/lib/actions/savings";
+import { getCurrentUser } from "@/lib/actions/auth";
 
 export default function Home() {
   const [isSavingsModalOpen, setIsSavingsModalOpen] = useState(false);
-  const [selectedTarget, setSelectedTarget] = useState("Liburan ke Jepang");
+  const [selectedTarget, setSelectedTarget] = useState<any>(null);
+  const [targets, setTargets] = useState<any[]>([]);
+  const [history, setHistory] = useState<any[]>([]);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleSaveClick = (targetTitle: string) => {
-    setSelectedTarget(targetTitle);
+  const fetchData = async () => {
+    setLoading(true);
+    const [targetsData, historyData, userData] = await Promise.all([
+      getTargets(),
+      getSavingsHistory(5),
+      getCurrentUser()
+    ]);
+    setTargets(targetsData);
+    setHistory(historyData);
+    setUser(userData);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleSaveClick = (target: any) => {
+    setSelectedTarget(target);
     setIsSavingsModalOpen(true);
   };
 
@@ -27,13 +51,18 @@ export default function Home() {
       {/* Savings Modal */}
       <SavingsModal
         isOpen={isSavingsModalOpen}
-        onClose={() => setIsSavingsModalOpen(false)}
+        onClose={() => {
+          setIsSavingsModalOpen(false);
+          fetchData();
+        }}
         defaultTarget={selectedTarget}
       />
 
       <main className={`max-w-7xl mx-auto px-8 py-10 ${isSavingsModalOpen ? "blur-sm pointer-events-none" : ""}`}>
         {/* Hero Glassmorphism Card */}
-        <HeroCard />
+        <HeroCard
+          totalAmount={`Rp ${targets.reduce((sum, t) => sum + parseFloat(t.collectedAmount), 0).toLocaleString("id-ID")}`}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Main Content Area */}
@@ -41,41 +70,47 @@ export default function Home() {
             {/* Goals Section */}
             <section>
               <div className="flex items-center justify-between mb-8 px-2">
-                <h2 className="text-2xl font-bold serif-vibe">Tujuan Kita</h2>
-                <button className="text-sm font-bold text-[#7ca29d] flex items-center gap-1">
+                <h2 className="text-2xl font-bold serif-vibe">
+                  {user?.partner ? "Tujuan Kita" : "Tujuan Saya"}
+                </h2>
+                <a href="/target" className="text-sm font-bold text-[#7ca29d] flex items-center gap-1">
                   Lihat Semua{" "}
                   <span className="material-symbols-outlined text-sm">
                     arrow_forward
                   </span>
-                </button>
+                </a>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <GoalCard
-                  icon="flight_takeoff"
-                  iconColor="text-[#7ca29d]"
-                  iconBg="bg-[#e0f2f1]"
-                  title="Liburan ke Jepang"
-                  target="Rp 35.000.000"
-                  progress={72}
-                  collected="Rp 25.2jt"
-                  progressColor="bg-[#7ca29d]"
-                  progressTextColor="text-[#7ca29d]"
-                  isPrimary={true}
-                  onSaveClick={() => handleSaveClick("Liburan ke Jepang")}
-                />
-                <GoalCard
-                  icon="home_work"
-                  iconColor="text-amber-600"
-                  iconBg="bg-[#fef3c7]"
-                  title="DP Rumah Impian"
-                  target="Rp 150.000.000"
-                  progress={15}
-                  collected="Rp 22.5jt"
-                  progressColor="bg-amber-400"
-                  progressTextColor="text-amber-600"
-                  isPrimary={false}
-                  onSaveClick={() => handleSaveClick("DP Rumah Impian")}
-                />
+                {loading ? (
+                  <p className="col-span-full text-center text-slate-400">Memuat tujuan...</p>
+                ) : targets.length > 0 ? (
+                  targets.slice(0, 2).map((target, idx) => {
+                    const collected = parseFloat(target.collectedAmount);
+                    const goal = parseFloat(target.targetAmount);
+                    const progress = Math.min(Math.round((collected / goal) * 100), 100);
+
+                    return (
+                      <GoalCard
+                        key={target.id}
+                        icon={target.icon}
+                        iconColor={target.iconColor}
+                        iconBg={target.iconBg}
+                        title={target.title}
+                        target={`Rp ${goal.toLocaleString("id-ID")}`}
+                        progress={progress}
+                        collected={`Rp ${collected.toLocaleString("id-ID")}`}
+                        progressColor="bg-[#7ca29d]"
+                        progressTextColor="text-[#7ca29d]"
+                        isPrimary={idx === 0}
+                        onSaveClick={() => handleSaveClick(target)}
+                      />
+                    );
+                  })
+                ) : (
+                  <div className="col-span-full p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center">
+                    <p className="text-slate-400">Belum ada target. Ayo buat satu!</p>
+                  </div>
+                )}
               </div>
             </section>
 
@@ -87,45 +122,31 @@ export default function Home() {
                 </h2>
               </div>
               <div className="space-y-3">
-                <HistoryItem
-                  name="Dinda"
-                  isYou={true}
-                  source="Tabungan Mingguan"
-                  time="2 jam yang lalu"
-                  amount="+Rp 500.000"
-                  destination="Ke Liburan Jepang"
-                  borderColor="border-[#7ca29d]"
-                  iconBg="bg-[#e0f2f1]"
-                  iconColor="text-[#7ca29d]"
-                  icon="person"
-                  amountColor="text-[#7ca29d]"
-                />
-                <HistoryItem
-                  name="Raka"
-                  isYou={false}
-                  source="Bonus Gaji"
-                  time="Kemarin"
-                  amount="+Rp 2.500.000"
-                  destination="Ke Rumah Impian"
-                  borderColor="border-amber-300"
-                  iconBg="bg-[#fef3c7]"
-                  iconColor="text-amber-600"
-                  icon="favorite"
-                  amountColor="text-amber-600"
-                />
-                <HistoryItem
-                  name="Dinda"
-                  isYou={true}
-                  source="Tabungan Harian"
-                  time="3 hari yang lalu"
-                  amount="+Rp 150.000"
-                  destination="Dana Darurat"
-                  borderColor="border-[#7ca29d]"
-                  iconBg="bg-[#e0f2f1]"
-                  iconColor="text-[#7ca29d]"
-                  icon="person"
-                  amountColor="text-[#7ca29d]"
-                />
+                {loading ? (
+                  <p className="text-center text-slate-400">Memuat riwayat...</p>
+                ) : history.length > 0 ? (
+                  history.map((item) => {
+                    const isYou = item.userName === user?.name;
+                    return (
+                      <HistoryItem
+                        key={item.id}
+                        name={isYou ? "Anda" : item.userName}
+                        isYou={isYou}
+                        source={item.source}
+                        time={new Date(item.createdAt).toLocaleDateString("id-ID")}
+                        amount={`+Rp ${parseInt(item.amount).toLocaleString("id-ID")}`}
+                        destination={`Ke ${item.targetTitle}`}
+                        borderColor={isYou ? "border-[#7ca29d]" : "border-amber-400"}
+                        iconBg={isYou ? "bg-[#e0f2f1]" : "bg-[#fef3c7]"}
+                        iconColor={isYou ? "text-[#7ca29d]" : "text-amber-600"}
+                        icon={isYou ? "person" : "partner_exchange"}
+                        amountColor={isYou ? "text-[#7ca29d]" : "text-amber-600"}
+                      />
+                    );
+                  })
+                ) : (
+                  <p className="text-center text-slate-400 py-4">Belum ada riwayat tabungan.</p>
+                )}
               </div>
             </section>
           </div>
@@ -133,7 +154,7 @@ export default function Home() {
           {/* Sidebar */}
           <aside className="lg:col-span-4 space-y-8">
             <FinancialInsights />
-            <InvitePartner />
+            {!user?.partner && <InvitePartner />}
             <TipsCard />
           </aside>
         </div>

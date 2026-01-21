@@ -1,40 +1,72 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { addSavings } from "@/lib/actions/savings";
+import { getTargets } from "@/lib/actions/target";
 
 interface SavingsModalProps {
     isOpen: boolean;
     onClose: () => void;
-    defaultTarget?: string;
+    defaultTarget?: any;
 }
 
-const QUICK_AMOUNTS = ["Rp 50k", "Rp 100k", "Rp 500k"];
-const TARGETS = ["Liburan ke Jepang", "DP Rumah Impian", "Dana Darurat"];
-
-const SAVERS = [
-    {
-        id: "saver-a",
-        name: "Andi",
-        avatar:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuCO3GabToIuUBVURK6GA2vBQXOIQlysc4eJVhGWv8aFno2GtJelbyoWGyCKcS6aMvJoaobGMS7leNzZna563rJL8PyO8ubH3MArBMEE7QdhipVcL0GxPZBLicYMxgBY_dkMlykHTWKSfzQgA6XHLcE7mfXA4uu_eH9c8Y1YuBur4tk6ty_54-PMr7kquJiEMQEwObIA3-M7YHAwBUxq0hkEooLYySS3hQuadnU4_e9WvGGzU3C8t0qkjLx3f8F8mRgY2jSIGXtltB0",
-    },
-    {
-        id: "saver-b",
-        name: "Budi",
-        avatar:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuAMOGJxJBIjZSy5YyrvNjDYpHnYridKq18LChxf1amzJBSp8RUlbOMCrAhPpJGcdQytM9_D-J_Blp4ofK71wr22B0k3JUmLnlguuhjXrFddzOOx18WYZBGLXktJNQD4Euj5X42tIxDpr5_Fu0NRzTlj2xRic8NDnHg9BawVLkmYoJRL2B1IUhDeH4BkwljibOStoMXP_il1OiL6DTBLzv9JvvDRdlkEMK4OaycpBxxQs2gGYg3-tPEjAUYFuTJ6PAWkpjNOla2TsRQ",
-    },
+const QUICK_AMOUNTS = [
+    { label: "50rb", value: "50000" },
+    { label: "100rb", value: "100000" },
+    { label: "500rb", value: "500000" }
 ];
 
 export default function SavingsModal({
     isOpen,
     onClose,
-    defaultTarget = "Liburan ke Jepang",
+    defaultTarget,
 }: SavingsModalProps) {
-    const [selectedSaver, setSelectedSaver] = useState("saver-a");
-    const [selectedAmount, setSelectedAmount] = useState("Rp 50k");
+    const [selectedAmount, setSelectedAmount] = useState("");
     const [customAmount, setCustomAmount] = useState("");
-    const [target, setTarget] = useState(defaultTarget);
+    const [targetId, setTargetId] = useState("");
+    const [targets, setTargets] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [user, setUser] = useState<any>(null);
+    const [saverId, setSaverId] = useState("");
+
+    useEffect(() => {
+        const init = async () => {
+            if (isOpen) {
+                const [targetsData, userData] = await Promise.all([
+                    getTargets(),
+                    import("@/lib/actions/auth").then(m => m.getCurrentUser())
+                ]);
+                setTargets(targetsData);
+                setUser(userData);
+                if (userData) setSaverId(userData.id);
+                if (defaultTarget) setTargetId(defaultTarget.id);
+            }
+        };
+        init();
+    }, [isOpen, defaultTarget]);
+
+    const handleSave = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError("");
+
+        const formData = new FormData();
+        formData.append("targetId", targetId);
+        formData.append("amount", customAmount || selectedAmount);
+        formData.append("source", "Tabungan Mandiri");
+        formData.append("userId", saverId);
+
+        const result = await addSavings(formData);
+
+        if (result.error) {
+            setError(result.error);
+            setLoading(false);
+        } else {
+            setLoading(false);
+            onClose();
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -73,105 +105,131 @@ export default function SavingsModal({
                 </div>
 
                 {/* Form Content */}
-                <div className="p-8 space-y-6 overflow-y-auto max-h-[70vh]">
-                    {/* Saver Selection */}
-                    <div>
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 block">
-                            Siapa yang menabung?
-                        </label>
-                        <div className="grid grid-cols-2 gap-3">
-                            {SAVERS.map((saver) => (
-                                <div key={saver.id} className="relative">
-                                    <input
-                                        type="radio"
-                                        id={saver.id}
-                                        name="saver"
-                                        className="sr-only peer"
-                                        checked={selectedSaver === saver.id}
-                                        onChange={() => setSelectedSaver(saver.id)}
-                                    />
-                                    <label
-                                        htmlFor={saver.id}
-                                        className="flex flex-col items-center p-3 rounded-2xl border-2 border-slate-100 cursor-pointer hover:bg-slate-50 transition-all peer-checked:border-[#7ca29d] peer-checked:bg-[#7ca29d]/10 peer-checked:ring-2 peer-checked:ring-[#7ca29d]/20"
-                                    >
-                                        <div
-                                            className="w-10 h-10 rounded-full bg-cover bg-center mb-2"
-                                            style={{ backgroundImage: `url("${saver.avatar}")` }}
-                                        />
-                                        <span className="text-sm font-bold">{saver.name}</span>
-                                    </label>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                <div className="p-8">
+                    <form className="space-y-6" id="savings-form" onSubmit={handleSave}>
+                        {error && (
+                            <div className="bg-red-50 text-red-500 text-xs p-4 rounded-xl border border-red-100 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm">error</span>
+                                {error}
+                            </div>
+                        )}
 
-                    {/* Amount Selection */}
-                    <div>
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 block">
-                            Pilih Nominal
-                        </label>
-                        <div className="grid grid-cols-3 gap-3 mb-4">
-                            {QUICK_AMOUNTS.map((amount) => (
-                                <button
-                                    key={amount}
-                                    onClick={() => {
-                                        setSelectedAmount(amount);
-                                        setCustomAmount("");
-                                    }}
-                                    className={`py-3 rounded-xl border-2 font-bold text-sm transition-all ${selectedAmount === amount
+                        {/* Saver Selection (Only if Partner exists) */}
+                        {user?.partner && (
+                            <div>
+                                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 block">
+                                    Siapa yang Menabung?
+                                </label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setSaverId(user.id)}
+                                        className={`flex items-center gap-3 p-3 rounded-2xl border-2 transition-all ${saverId === user.id ? "border-[#7ca29d] bg-[#e0f2f1]/30" : "border-slate-100"}`}
+                                    >
+                                        <div className="w-10 h-10 rounded-full bg-[#7ca29d] flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                                            {user.name?.[0]}
+                                        </div>
+                                        <div className="text-left">
+                                            <p className="text-sm font-bold text-slate-700">{user.name}</p>
+                                            <p className="text-[10px] text-slate-400 font-bold uppercase">Saya</p>
+                                        </div>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setSaverId(user.partner.id)}
+                                        className={`flex items-center gap-3 p-3 rounded-2xl border-2 transition-all ${saverId === user.partner.id ? "border-amber-400 bg-amber-50" : "border-slate-100"}`}
+                                    >
+                                        <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                                            {user.partner.name?.[0]}
+                                        </div>
+                                        <div className="text-left">
+                                            <p className="text-sm font-bold text-slate-700">{user.partner.name}</p>
+                                            <p className="text-[10px] text-slate-400 font-bold uppercase">Pasangan</p>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Amount Selection */}
+                        <div>
+                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 block">
+                                Pilih Nominal
+                            </label>
+                            <div className="grid grid-cols-3 gap-3 mb-4">
+                                {QUICK_AMOUNTS.map((amt) => (
+                                    <button
+                                        key={amt.value}
+                                        type="button"
+                                        onClick={() => {
+                                            setSelectedAmount(amt.value);
+                                            setCustomAmount("");
+                                        }}
+                                        className={`py-3 rounded-xl border-2 font-bold text-sm transition-all ${selectedAmount === amt.value
                                             ? "border-[#7ca29d] bg-[#e0f2f1]/30 text-[#7ca29d]"
                                             : "border-slate-100 hover:border-[#7ca29d]/50 text-slate-600"
-                                        }`}
-                                >
-                                    {amount}
-                                </button>
-                            ))}
-                        </div>
-                        <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">
-                                Rp
-                            </span>
-                            <input
-                                type="number"
-                                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-lg font-extrabold focus:ring-2 focus:ring-[#7ca29d]/20 placeholder:text-slate-300 outline-none"
-                                placeholder="Ketik nominal..."
-                                value={customAmount}
-                                onChange={(e) => {
-                                    setCustomAmount(e.target.value);
-                                    setSelectedAmount("");
-                                }}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Target Selection */}
-                    <div>
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 block">
-                            Target Tujuan
-                        </label>
-                        <div className="relative">
-                            <select
-                                className="w-full appearance-none bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-[#7ca29d]/20 outline-none"
-                                value={target}
-                                onChange={(e) => setTarget(e.target.value)}
-                            >
-                                {TARGETS.map((t) => (
-                                    <option key={t} value={t}>
-                                        {t}
-                                    </option>
+                                            }`}
+                                    >
+                                        {amt.label}
+                                    </button>
                                 ))}
-                            </select>
-                            <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                                unfold_more
-                            </span>
+                            </div>
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">
+                                    Rp
+                                </span>
+                                <input
+                                    type="number"
+                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-lg font-extrabold focus:ring-2 focus:ring-[#7ca29d]/20 placeholder:text-slate-300 outline-none"
+                                    placeholder="Ketik nominal..."
+                                    value={customAmount}
+                                    onChange={(e) => {
+                                        setCustomAmount(e.target.value);
+                                        setSelectedAmount("");
+                                    }}
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Submit Button */}
-                    <button className="w-full bg-[#7ca29d] text-white py-4 rounded-2xl font-extrabold text-lg shadow-xl shadow-[#7ca29d]/30 hover:bg-[#7ca29d]/90 transition-all transform active:scale-[0.98] flex items-center justify-center gap-3">
-                        <span className="material-symbols-outlined">send_money</span>
-                        Setor Sekarang
-                    </button>
+                        {/* Target Selection */}
+                        <div>
+                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 block">
+                                Target Tujuan
+                            </label>
+                            <div className="relative">
+                                <select
+                                    className="w-full appearance-none bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-[#7ca29d]/20 outline-none"
+                                    value={targetId}
+                                    onChange={(e) => setTargetId(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Pilih Target</option>
+                                    {targets.map((t) => (
+                                        <option key={t.id} value={t.id}>
+                                            {t.title}
+                                        </option>
+                                    ))}
+                                </select>
+                                <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                                    unfold_more
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-[#7ca29d] text-white py-4 rounded-2xl font-extrabold text-lg shadow-xl shadow-[#7ca29d]/30 hover:bg-[#7ca29d]/90 transition-all transform active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3"
+                        >
+                            {loading ? (
+                                <span className="animate-spin material-symbols-outlined">sync</span>
+                            ) : (
+                                <span className="material-symbols-outlined">send_money</span>
+                            )}
+                            {loading ? "Memproses..." : "Setor Sekarang"}
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

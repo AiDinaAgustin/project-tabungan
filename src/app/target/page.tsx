@@ -1,78 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import TargetGoalCard from "@/components/TargetGoalCard";
 import NewTargetModal from "@/components/NewTargetModal";
 import SavingsModal from "@/components/SavingsModal";
-
-const targetData = [
-    {
-        icon: "flight_takeoff",
-        iconBg: "bg-[#e0f2f1]",
-        iconColor: "text-[#7ca29d]",
-        title: "Liburan ke Jepang",
-        subtitle: "Terisi Rp 500rb hari ini",
-        subtitleColor: "text-emerald-600 font-bold",
-        progress: 72,
-        progressColor: "text-[#7ca29d]",
-        collected: "Rp 25.200.000",
-        collectedColor: "text-[#7ca29d]",
-        target: "Rp 35.000.000",
-        buttonVariant: "primary" as const,
-        contributions: [
-            { name: "Dinda", initial: "D", amount: "+Rp 500.000", bgColor: "bg-[#e0f2f1]", textColor: "text-[#7ca29d]" },
-            { name: "Raka", initial: "R", amount: "+Rp 1.200.000", bgColor: "bg-[#fef3c7]", textColor: "text-amber-600" },
-            { name: "Dinda", initial: "D", amount: "+Rp 250.000", bgColor: "bg-[#e0f2f1]", textColor: "text-[#7ca29d]" },
-        ],
-    },
-    {
-        icon: "home_work",
-        iconBg: "bg-[#fef3c7]",
-        iconColor: "text-amber-600",
-        title: "DP Rumah Impian",
-        subtitle: "Selesai dalam 2 tahun",
-        subtitleColor: "text-slate-500",
-        progress: 15,
-        progressColor: "text-amber-400",
-        collected: "Rp 22.500.000",
-        collectedColor: "text-amber-600",
-        target: "Rp 150.000.000",
-        buttonVariant: "dark" as const,
-        contributions: [
-            { name: "Raka", initial: "R", amount: "+Rp 2.500.000", bgColor: "bg-[#fef3c7]", textColor: "text-amber-600" },
-            { name: "Dinda", initial: "D", amount: "+Rp 1.000.000", bgColor: "bg-[#e0f2f1]", textColor: "text-[#7ca29d]" },
-            { name: "Raka", initial: "R", amount: "+Rp 2.500.000", bgColor: "bg-[#fef3c7]", textColor: "text-amber-600" },
-        ],
-    },
-    {
-        icon: "medical_services",
-        iconBg: "bg-emerald-50",
-        iconColor: "text-emerald-600",
-        title: "Dana Darurat",
-        subtitle: "Hampir Selesai! 🎉",
-        subtitleColor: "text-slate-500",
-        progress: 95,
-        progressColor: "text-emerald-500",
-        collected: "Rp 19.000.000",
-        collectedColor: "text-emerald-600",
-        target: "Rp 20.000.000",
-        buttonVariant: "primary" as const,
-        contributions: [
-            { name: "Dinda", initial: "D", amount: "+Rp 150.000", bgColor: "bg-[#e0f2f1]", textColor: "text-[#7ca29d]" },
-            { name: "Raka", initial: "R", amount: "+Rp 300.000", bgColor: "bg-[#fef3c7]", textColor: "text-amber-600" },
-            { name: "Dinda", initial: "D", amount: "+Rp 200.000", bgColor: "bg-[#e0f2f1]", textColor: "text-[#7ca29d]" },
-        ],
-    },
-];
+import { getTargets } from "@/lib/actions/target";
+import { getCurrentUser } from "@/lib/actions/auth";
 
 export default function TargetPage() {
     const [isNewTargetModalOpen, setIsNewTargetModalOpen] = useState(false);
     const [isSavingsModalOpen, setIsSavingsModalOpen] = useState(false);
-    const [selectedTarget, setSelectedTarget] = useState("Liburan ke Jepang");
+    const [targets, setTargets] = useState<any[]>([]);
+    const [selectedTarget, setSelectedTarget] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState<any>(null);
 
-    const handleSaveClick = (targetTitle: string) => {
-        setSelectedTarget(targetTitle);
+    const fetchData = async () => {
+        setLoading(true);
+        const [targetsData, userData] = await Promise.all([
+            getTargets(),
+            getCurrentUser()
+        ]);
+        setTargets(targetsData);
+        setUser(userData);
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const handleSaveClick = (target: any) => {
+        setSelectedTarget(target);
         setIsSavingsModalOpen(true);
     };
 
@@ -83,10 +43,19 @@ export default function TargetPage() {
             <Navbar />
 
             {/* Modals */}
-            <NewTargetModal isOpen={isNewTargetModalOpen} onClose={() => setIsNewTargetModalOpen(false)} />
+            <NewTargetModal
+                isOpen={isNewTargetModalOpen}
+                onClose={() => {
+                    setIsNewTargetModalOpen(false);
+                    fetchData();
+                }}
+            />
             <SavingsModal
                 isOpen={isSavingsModalOpen}
-                onClose={() => setIsSavingsModalOpen(false)}
+                onClose={() => {
+                    setIsSavingsModalOpen(false);
+                    fetchData();
+                }}
                 defaultTarget={selectedTarget}
             />
 
@@ -95,10 +64,12 @@ export default function TargetPage() {
                 <header className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
                     <div>
                         <h1 className="text-4xl font-extrabold serif-vibe mb-2">
-                            Target Masa Depan
+                            {user?.partner ? "Target Masa Depan" : "Target Saya"}
                         </h1>
                         <p className="text-slate-500 font-medium">
-                            Kelola dan pantau setiap impian yang kita bangun bersama.
+                            {user?.partner
+                                ? "Kelola dan pantau setiap impian yang kita bangun bersama."
+                                : "Kelola dan pantau setiap impian yang Anda bangun."}
                         </p>
                     </div>
                     <button
@@ -112,18 +83,49 @@ export default function TargetPage() {
 
                 {/* Target Cards Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {targetData.map((target, index) => (
-                        <TargetGoalCard
-                            key={index}
-                            {...target}
-                            onSaveClick={() => handleSaveClick(target.title)}
-                        />
-                    ))}
+                    {loading ? (
+                        <div className="col-span-full py-20 text-center">
+                            <span className="animate-spin material-symbols-outlined text-4xl text-[#7ca29d]">sync</span>
+                            <p className="mt-4 text-slate-400 font-medium">Memuat impian Anda...</p>
+                        </div>
+                    ) : targets.length > 0 ? (
+                        targets.map((target) => {
+                            const collected = parseFloat(target.collectedAmount);
+                            const goal = parseFloat(target.targetAmount);
+                            const progress = Math.min(Math.round((collected / goal) * 100), 100);
+
+                            return (
+                                <TargetGoalCard
+                                    key={target.id}
+                                    icon={target.icon}
+                                    iconBg={target.iconBg}
+                                    iconColor={target.iconColor}
+                                    title={target.title}
+                                    subtitle={progress >= 100 ? "Target Tercapai! 🎉" : "Saling bantu mencapainya"}
+                                    subtitleColor={progress >= 100 ? "text-emerald-600 font-bold" : "text-slate-500"}
+                                    progress={progress}
+                                    progressColor={target.progressColor}
+                                    collected={`Rp ${collected.toLocaleString("id-ID")}`}
+                                    collectedColor={target.iconColor}
+                                    target={`Rp ${goal.toLocaleString("id-ID")}`}
+                                    buttonVariant="primary"
+                                    contributions={[]} // We could fetch this too, but for now empty
+                                    onSaveClick={() => handleSaveClick(target)}
+                                />
+                            );
+                        })
+                    ) : (
+                        <div className="col-span-full py-20 bg-white/50 rounded-[2.5rem] border-2 border-dashed border-slate-200 text-center">
+                            <span className="material-symbols-outlined text-6xl text-slate-200 mb-4">sentiment_dissatisfied</span>
+                            <h3 className="text-2xl font-bold text-slate-500">Belum ada target</h3>
+                            <p className="text-slate-400 mt-2">Ayo buat target pertama kita hari ini!</p>
+                        </div>
+                    )}
 
                     {/* Add New Target Card */}
                     <div
                         onClick={() => setIsNewTargetModalOpen(true)}
-                        className="bg-white/40 border-2 border-dashed border-slate-200 rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-[#7ca29d]/50 transition-all"
+                        className="bg-white/40 border-2 border-dashed border-slate-200 rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-[#7ca29d]/50 transition-all min-h-[300px]"
                     >
                         <div className="w-20 h-20 bg-white rounded-3xl shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                             <span className="material-symbols-outlined text-4xl text-slate-300 group-hover:text-[#7ca29d] transition-colors">
@@ -144,13 +146,10 @@ export default function TargetPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
                         <div className="px-6 py-2 md:border-r border-slate-200">
                             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
-                                Rata-rata Menabung
+                                Total Tabungan
                             </p>
                             <p className="text-3xl font-extrabold serif-vibe">
-                                Rp 4.250.000
-                                <span className="text-sm text-slate-400 font-sans font-medium">
-                                    /bln
-                                </span>
+                                Rp {targets.reduce((sum, t) => sum + parseFloat(t.collectedAmount), 0).toLocaleString("id-ID")}
                             </p>
                         </div>
                         <div className="px-6 py-2 md:border-r border-slate-200">
@@ -158,7 +157,7 @@ export default function TargetPage() {
                                 Target Terlampaui
                             </p>
                             <p className="text-3xl font-extrabold serif-vibe">
-                                4{" "}
+                                {targets.filter(t => parseFloat(t.collectedAmount) >= parseFloat(t.targetAmount)).length}{" "}
                                 <span className="text-sm text-slate-400 font-sans font-medium">
                                     Tujuan
                                 </span>
@@ -173,7 +172,7 @@ export default function TargetPage() {
                                     check_circle
                                 </span>
                                 <p className="text-3xl font-extrabold serif-vibe text-emerald-600">
-                                    Sangat Sehat
+                                    Sangat Baik
                                 </p>
                             </div>
                         </div>
@@ -185,7 +184,7 @@ export default function TargetPage() {
             <footer className={`mt-20 py-10 border-t border-slate-200/50 text-center ${isAnyModalOpen ? "blur-sm" : ""}`}>
                 <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                        © 2026 Tabungan Bersama • Masa Depan Kita
+                        © 2026 Tabungan Bersama • {user?.partner ? "Masa Depan Kita" : "Masa Depan Anda"}
                     </p>
                     <div className="flex gap-6">
                         <a

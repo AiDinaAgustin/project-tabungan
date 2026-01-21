@@ -2,16 +2,34 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { loginUser } from "@/lib/actions/auth";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Handle login logic here
-        console.log("Login:", { email, password });
+        setError("");
+        setLoading(true);
+
+        const formData = new FormData();
+        formData.append("email", email);
+        formData.append("password", password);
+
+        const result = await loginUser(formData);
+
+        if (result.error) {
+            setError(result.error);
+            setLoading(false);
+        } else {
+            router.push("/");
+        }
     };
 
     return (
@@ -126,6 +144,12 @@ export default function LoginPage() {
 
                             {/* Login Form */}
                             <form className="space-y-5" onSubmit={handleSubmit}>
+                                {error && (
+                                    <div className="bg-red-50 text-red-500 text-sm p-4 rounded-xl border border-red-100 flex items-center gap-2">
+                                        <span className="material-symbols-outlined text-lg">error</span>
+                                        {error}
+                                    </div>
+                                )}
                                 {/* Email Field */}
                                 <div className="space-y-1.5">
                                     <label className="text-slate-800/70 text-xs font-bold tracking-wider uppercase ml-1">
@@ -141,6 +165,7 @@ export default function LoginPage() {
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
+                                            required
                                         />
                                     </div>
                                 </div>
@@ -168,6 +193,7 @@ export default function LoginPage() {
                                             type={showPassword ? "text" : "password"}
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
+                                            required
                                         />
                                         <button
                                             className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#7ca29d] transition-colors"
@@ -183,10 +209,18 @@ export default function LoginPage() {
 
                                 {/* Submit Button */}
                                 <button
-                                    className="w-full h-14 bg-[#7ca29d] text-white font-bold text-lg rounded-xl hover:bg-[#6b918c] transition-all shadow-lg shadow-[#7ca29d]/20 mt-4 active:scale-[0.98]"
+                                    className="w-full h-14 bg-[#7ca29d] text-white font-bold text-lg rounded-xl hover:bg-[#6b918c] transition-all shadow-lg shadow-[#7ca29d]/20 mt-4 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                     type="submit"
+                                    disabled={loading}
                                 >
-                                    Masuk
+                                    {loading ? (
+                                        <>
+                                            <span className="animate-spin material-symbols-outlined">sync</span>
+                                            Memproses...
+                                        </>
+                                    ) : (
+                                        "Masuk"
+                                    )}
                                 </button>
                             </form>
 

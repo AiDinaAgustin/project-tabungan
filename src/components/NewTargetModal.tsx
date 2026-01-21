@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createTarget } from "@/lib/actions/target";
 
 interface NewTargetModalProps {
     isOpen: boolean;
@@ -10,8 +11,31 @@ interface NewTargetModalProps {
 export default function NewTargetModal({ isOpen, onClose }: NewTargetModalProps) {
     const [name, setName] = useState("");
     const [amount, setAmount] = useState("");
-    const [date, setDate] = useState("");
     const [category, setCategory] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    const handleSave = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError("");
+
+        const formData = new FormData();
+        formData.append("title", name);
+        formData.append("targetAmount", amount);
+        formData.append("icon", category || "savings");
+
+        const result = await createTarget(formData);
+
+        if (result.error) {
+            setError(result.error);
+            setLoading(false);
+        } else {
+            setLoading(false);
+            onClose();
+            // revalidatePath is called in the action
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -43,7 +67,13 @@ export default function NewTargetModal({ isOpen, onClose }: NewTargetModalProps)
 
                 {/* Form */}
                 <div className="px-8 py-4">
-                    <form className="space-y-6">
+                    <form className="space-y-6" id="new-target-form" onSubmit={handleSave}>
+                        {error && (
+                            <div className="bg-red-50 text-red-500 text-xs p-4 rounded-xl border border-red-100 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm">error</span>
+                                {error}
+                            </div>
+                        )}
                         {/* Nama Impian */}
                         <div>
                             <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
@@ -55,37 +85,26 @@ export default function NewTargetModal({ isOpen, onClose }: NewTargetModalProps)
                                 type="text"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
+                                required
                             />
                         </div>
 
-                        {/* Target Nominal & Tanggal */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
-                                    Target Nominal
-                                </label>
-                                <div className="relative">
-                                    <span className="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-sm">
-                                        IDR
-                                    </span>
-                                    <input
-                                        className="w-full pl-14 pr-5 py-3.5 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-[#7ca29d]/30 text-slate-900 font-bold transition-all outline-none"
-                                        placeholder="0"
-                                        type="number"
-                                        value={amount}
-                                        onChange={(e) => setAmount(e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
-                                    Target Tanggal
-                                </label>
+                        {/* Target Nominal */}
+                        <div>
+                            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                                Target Nominal
+                            </label>
+                            <div className="relative">
+                                <span className="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-sm">
+                                    IDR
+                                </span>
                                 <input
-                                    className="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-[#7ca29d]/30 text-slate-900 font-medium transition-all outline-none"
-                                    type="date"
-                                    value={date}
-                                    onChange={(e) => setDate(e.target.value)}
+                                    className="w-full pl-14 pr-5 py-3.5 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-[#7ca29d]/30 text-slate-900 font-bold transition-all outline-none"
+                                    placeholder="0"
+                                    type="number"
+                                    value={amount}
+                                    onChange={(e) => setAmount(e.target.value)}
+                                    required
                                 />
                             </div>
                         </div>
@@ -100,13 +119,14 @@ export default function NewTargetModal({ isOpen, onClose }: NewTargetModalProps)
                                     className="w-full pl-12 pr-5 py-3.5 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-[#7ca29d]/30 text-slate-900 font-medium appearance-none cursor-pointer transition-all outline-none"
                                     value={category}
                                     onChange={(e) => setCategory(e.target.value)}
+                                    required
                                 >
                                     <option value="">Pilih Kategori</option>
-                                    <option value="travel">✈️ Travel</option>
-                                    <option value="home">🏡 Home</option>
-                                    <option value="wedding">💍 Wedding</option>
-                                    <option value="emergency">🏥 Emergency</option>
-                                    <option value="others">✨ Lainnya</option>
+                                    <option value="flight_takeoff">✈️ Travel</option>
+                                    <option value="home_work">🏡 Home</option>
+                                    <option value="favorite">💍 Wedding</option>
+                                    <option value="medical_services">🏥 Emergency</option>
+                                    <option value="savings">✨ Lainnya</option>
                                 </select>
                                 <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
                                     <span className="material-symbols-outlined text-xl">category</span>
@@ -122,9 +142,9 @@ export default function NewTargetModal({ isOpen, onClose }: NewTargetModalProps)
                                         Estimasi Tabungan Bulanan
                                     </p>
                                     <p className="text-2xl font-extrabold serif-vibe text-[#7ca29d]">
-                                        Rp 1.250.000
-                                        <span className="text-sm font-sans font-medium text-slate-400">
-                                            /bulan
+                                        {amount ? `Rp ${(parseInt(amount) / 12).toLocaleString("id-ID")}` : "Rp 0"}
+                                        <span className="text-sm font-sans font-medium text-slate-400 ml-1">
+                                            /bulan (1th)
                                         </span>
                                     </p>
                                 </div>
@@ -140,12 +160,19 @@ export default function NewTargetModal({ isOpen, onClose }: NewTargetModalProps)
                 <div className="p-8 flex items-center gap-4">
                     <button
                         onClick={onClose}
+                        type="button"
                         className="flex-1 bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold hover:bg-slate-200 transition-all"
                     >
                         Batal
                     </button>
-                    <button className="flex-[2] bg-[#7ca29d] text-white py-4 rounded-2xl font-bold shadow-xl shadow-[#7ca29d]/20 hover:bg-[#7ca29d]/90 transition-all hover:scale-[1.02] active:scale-[0.98]">
-                        Simpan Target
+                    <button
+                        form="new-target-form"
+                        type="submit"
+                        disabled={loading}
+                        className="flex-[2] bg-[#7ca29d] text-white py-4 rounded-2xl font-bold shadow-xl shadow-[#7ca29d]/20 hover:bg-[#7ca29d]/90 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                        {loading && <span className="animate-spin material-symbols-outlined text-sm">sync</span>}
+                        {loading ? "Menyimpan..." : "Simpan Target"}
                     </button>
                 </div>
             </div>

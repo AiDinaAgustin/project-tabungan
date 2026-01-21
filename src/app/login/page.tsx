@@ -205,7 +205,7 @@ export default function LoginPage() {
 
                             {/* Terms */}
                             <p className="mt-12 text-center text-[10px] text-gray-400 leading-relaxed">
-                                © 2024 Tabungan Bersama. Aman dan Terpercaya.
+                                © 2026 Tabungan Bersama. Aman dan Terpercaya.
                             </p>
                         </div>
                     </div>

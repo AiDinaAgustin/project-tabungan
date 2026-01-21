@@ -185,7 +185,7 @@ export default function TargetPage() {
             <footer className={`mt-20 py-10 border-t border-slate-200/50 text-center ${isAnyModalOpen ? "blur-sm" : ""}`}>
                 <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                        © 2024 Tabungan Bersama • Masa Depan Kita
+                        © 2026 Tabungan Bersama • Masa Depan Kita
                     </p>
                     <div className="flex gap-6">
                         <a

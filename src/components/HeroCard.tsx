@@ -21,18 +21,12 @@ export default function HeroCard({ totalAmount = "Rp 0", monthlyChange = "+Rp 0"
                             Satu langkah lebih dekat ke masa depan kita ✨
                         </p>
                     </div>
-                    <div className="grid grid-cols-2 gap-8 w-full md:w-auto">
-                        <div className="text-center md:text-left px-6 py-2 border-l border-[#7ca29d]/20">
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter mb-1">
-                                Bulan Ini
+                    <div className="w-full md:w-auto">
+                        <div className="text-center md:text-left px-8 py-4 border-l-2 border-[#7ca29d]/20 bg-white/40 rounded-3xl backdrop-blur-sm">
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
+                                Tabungan Bulan Ini
                             </p>
-                            <p className="text-2xl font-bold text-emerald-600">{monthlyChange}</p>
-                        </div>
-                        <div className="text-center md:text-left px-6 py-2 border-l border-[#7ca29d]/20">
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter mb-1">
-                                Target Terdekat
-                            </p>
-                            <p className="text-2xl font-bold">12 Hari</p>
+                            <p className="text-3xl font-black text-emerald-600">{monthlyChange}</p>
                         </div>
                     </div>
                 </div>

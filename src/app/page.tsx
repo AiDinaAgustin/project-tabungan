@@ -94,6 +94,7 @@ export default function Home() {
         {/* Hero Glassmorphism Card */}
         <HeroCard
           totalAmount={`Rp ${targets.reduce((sum, t) => sum + parseFloat(t.collectedAmount), 0).toLocaleString("id-ID")}`}
+          monthlyChange={`+Rp ${insights.reduce((sum, i) => sum + Number(i.totalAmount), 0).toLocaleString("id-ID")}`}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">

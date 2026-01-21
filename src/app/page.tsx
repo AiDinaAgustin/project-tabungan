@@ -1,65 +1,144 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import Navbar from "@/components/Navbar";
+import HeroCard from "@/components/HeroCard";
+import GoalCard from "@/components/GoalCard";
+import HistoryItem from "@/components/HistoryItem";
+import FinancialInsights from "@/components/FinancialInsights";
+import InvitePartner from "@/components/InvitePartner";
+import TipsCard from "@/components/TipsCard";
+import Footer from "@/components/Footer";
+import SavingsModal from "@/components/SavingsModal";
 
 export default function Home() {
+  const [isSavingsModalOpen, setIsSavingsModalOpen] = useState(false);
+  const [selectedTarget, setSelectedTarget] = useState("Liburan ke Jepang");
+
+  const handleSaveClick = (targetTitle: string) => {
+    setSelectedTarget(targetTitle);
+    setIsSavingsModalOpen(true);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+    <>
+      <Navbar />
+
+      {/* Savings Modal */}
+      <SavingsModal
+        isOpen={isSavingsModalOpen}
+        onClose={() => setIsSavingsModalOpen(false)}
+        defaultTarget={selectedTarget}
+      />
+
+      <main className={`max-w-7xl mx-auto px-8 py-10 ${isSavingsModalOpen ? "blur-sm pointer-events-none" : ""}`}>
+        {/* Hero Glassmorphism Card */}
+        <HeroCard />
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          {/* Main Content Area */}
+          <div className="lg:col-span-8 space-y-12">
+            {/* Goals Section */}
+            <section>
+              <div className="flex items-center justify-between mb-8 px-2">
+                <h2 className="text-2xl font-bold serif-vibe">Tujuan Kita</h2>
+                <button className="text-sm font-bold text-[#7ca29d] flex items-center gap-1">
+                  Lihat Semua{" "}
+                  <span className="material-symbols-outlined text-sm">
+                    arrow_forward
+                  </span>
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <GoalCard
+                  icon="flight_takeoff"
+                  iconColor="text-[#7ca29d]"
+                  iconBg="bg-[#e0f2f1]"
+                  title="Liburan ke Jepang"
+                  target="Rp 35.000.000"
+                  progress={72}
+                  collected="Rp 25.2jt"
+                  progressColor="bg-[#7ca29d]"
+                  progressTextColor="text-[#7ca29d]"
+                  isPrimary={true}
+                  onSaveClick={() => handleSaveClick("Liburan ke Jepang")}
+                />
+                <GoalCard
+                  icon="home_work"
+                  iconColor="text-amber-600"
+                  iconBg="bg-[#fef3c7]"
+                  title="DP Rumah Impian"
+                  target="Rp 150.000.000"
+                  progress={15}
+                  collected="Rp 22.5jt"
+                  progressColor="bg-amber-400"
+                  progressTextColor="text-amber-600"
+                  isPrimary={false}
+                  onSaveClick={() => handleSaveClick("DP Rumah Impian")}
+                />
+              </div>
+            </section>
+
+            {/* History Section */}
+            <section>
+              <div className="flex items-center justify-between mb-8 px-2">
+                <h2 className="text-2xl font-bold serif-vibe">
+                  Riwayat Tabungan
+                </h2>
+              </div>
+              <div className="space-y-3">
+                <HistoryItem
+                  name="Dinda"
+                  isYou={true}
+                  source="Tabungan Mingguan"
+                  time="2 jam yang lalu"
+                  amount="+Rp 500.000"
+                  destination="Ke Liburan Jepang"
+                  borderColor="border-[#7ca29d]"
+                  iconBg="bg-[#e0f2f1]"
+                  iconColor="text-[#7ca29d]"
+                  icon="person"
+                  amountColor="text-[#7ca29d]"
+                />
+                <HistoryItem
+                  name="Raka"
+                  isYou={false}
+                  source="Bonus Gaji"
+                  time="Kemarin"
+                  amount="+Rp 2.500.000"
+                  destination="Ke Rumah Impian"
+                  borderColor="border-amber-300"
+                  iconBg="bg-[#fef3c7]"
+                  iconColor="text-amber-600"
+                  icon="favorite"
+                  amountColor="text-amber-600"
+                />
+                <HistoryItem
+                  name="Dinda"
+                  isYou={true}
+                  source="Tabungan Harian"
+                  time="3 hari yang lalu"
+                  amount="+Rp 150.000"
+                  destination="Dana Darurat"
+                  borderColor="border-[#7ca29d]"
+                  iconBg="bg-[#e0f2f1]"
+                  iconColor="text-[#7ca29d]"
+                  icon="person"
+                  amountColor="text-[#7ca29d]"
+                />
+              </div>
+            </section>
+          </div>
+
+          {/* Sidebar */}
+          <aside className="lg:col-span-4 space-y-8">
+            <FinancialInsights />
+            <InvitePartner />
+            <TipsCard />
+          </aside>
         </div>
       </main>
-    </div>
+      <Footer />
+    </>
   );
 }

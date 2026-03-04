@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import BottomNav from "@/components/BottomNav";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-display",
@@ -38,8 +39,9 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Tabungan Bersama" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
-      <body className={`${plusJakartaSans.variable} font-sans antialiased bg-[#fcfbf7] text-slate-900 min-h-screen`}>
+      <body className={`${plusJakartaSans.variable} font-sans antialiased bg-[#fcfbf7] text-slate-900 min-h-screen pb-16 md:pb-0`}>
         {children}
+        <BottomNav />
       </body>
     </html>
   );

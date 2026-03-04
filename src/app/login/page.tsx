@@ -38,8 +38,8 @@ export default function LoginPage() {
             <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#7ca29d]/5 rounded-full blur-[120px] z-0"></div>
             <div className="fixed bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-[#7ca29d]/10 rounded-full blur-[100px] z-0"></div>
 
-            <main className="relative z-10 w-full max-w-[1140px] px-6 py-12 flex items-center justify-center">
-                <div className="bg-white shadow-2xl rounded-[32px] w-full flex overflow-hidden min-h-[720px]">
+            <main className="relative z-10 w-full max-w-[1140px] px-4 py-6 md:px-6 md:py-12 flex items-center justify-center">
+                <div className="bg-white shadow-2xl rounded-[24px] md:rounded-[32px] w-full flex overflow-hidden">
                     {/* Left Side - Illustration */}
                     <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-[#7ca29d] to-[#9bb8b4] p-16 flex-col justify-between relative overflow-hidden">
                         <div className="relative z-10">
@@ -89,30 +89,30 @@ export default function LoginPage() {
                     </div>
 
                     {/* Right Side - Form */}
-                    <div className="w-full lg:w-1/2 p-8 md:p-16 flex flex-col justify-center">
+                    <div className="w-full lg:w-1/2 p-6 sm:p-8 md:p-16 flex flex-col justify-center">
                         <div className="w-full max-w-[400px] mx-auto">
                             {/* Header */}
-                            <div className="mb-10 text-center lg:text-left">
+                            <div className="mb-6 md:mb-8 text-center lg:text-left">
                                 {/* Mobile Logo */}
-                                <div className="lg:hidden flex justify-center mb-6">
-                                    <div className="size-12 bg-[#7ca29d]/20 rounded-xl flex items-center justify-center">
-                                        <span className="material-symbols-outlined text-[#7ca29d] text-3xl">
+                                <div className="lg:hidden flex justify-center mb-3">
+                                    <div className="size-9 bg-[#7ca29d]/20 rounded-xl flex items-center justify-center">
+                                        <span className="material-symbols-outlined text-[#7ca29d] text-xl">
                                             savings
                                         </span>
                                     </div>
                                 </div>
 
-                                <h1 className="text-slate-800 text-3xl font-bold leading-tight tracking-tight mb-3">
+                                <h1 className="text-slate-800 text-lg sm:text-xl md:text-3xl font-bold leading-tight tracking-tight mb-1.5">
                                     Selamat Datang Kembali!
                                 </h1>
-                                <p className="text-gray-500 text-base font-normal">
-                                    Silakan masuk untuk melanjutkan perjalanan finansial Anda.
+                                <p className="text-gray-500 text-xs sm:text-sm font-normal">
+                                    Masuk untuk lanjutkan perjalanan finansial Anda.
                                 </p>
                             </div>
 
                             {/* Google Login Button */}
-                            <button className="w-full flex items-center justify-center gap-3 border border-gray-200 bg-white h-12 rounded-xl hover:bg-gray-50 transition-all duration-200 mb-6 font-semibold shadow-sm">
-                                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                            <button className="w-full flex items-center justify-center gap-3 border border-gray-200 bg-white h-11 rounded-xl hover:bg-gray-50 transition-all duration-200 mb-4 font-semibold shadow-sm">
+                                <svg className="w-4 h-4" viewBox="0 0 24 24">
                                     <path
                                         fill="#4285F4"
                                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -130,20 +130,20 @@ export default function LoginPage() {
                                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                                     />
                                 </svg>
-                                <span className="text-slate-800 text-sm">Masuk dengan Google</span>
+                                <span className="text-slate-800 text-xs sm:text-sm">Masuk dengan Google</span>
                             </button>
 
                             {/* Divider */}
-                            <div className="relative flex py-4 items-center mb-6">
+                            <div className="relative flex py-3 items-center mb-4">
                                 <div className="flex-grow border-t border-gray-200"></div>
-                                <span className="flex-shrink mx-4 text-gray-400 text-xs font-medium uppercase tracking-wider">
+                                <span className="flex-shrink mx-3 text-gray-400 text-xs font-medium uppercase tracking-wider">
                                     Atau
                                 </span>
                                 <div className="flex-grow border-t border-gray-200"></div>
                             </div>
 
                             {/* Login Form */}
-                            <form className="space-y-5" onSubmit={handleSubmit}>
+                            <form className="space-y-3 sm:space-y-4" onSubmit={handleSubmit}>
                                 {error && (
                                     <div className="bg-red-50 text-red-500 text-sm p-4 rounded-xl border border-red-100 flex items-center gap-2">
                                         <span className="material-symbols-outlined text-lg">error</span>
@@ -160,7 +160,7 @@ export default function LoginPage() {
                                             mail
                                         </span>
                                         <input
-                                            className="w-full h-[52px] bg-gray-50 border-transparent rounded-xl pl-12 pr-4 focus:bg-white focus:ring-2 focus:ring-[#7ca29d]/40 focus:border-[#7ca29d] transition-all text-slate-800 placeholder:text-gray-400 outline-none text-sm"
+                                            className="w-full h-[46px] sm:h-[52px] bg-gray-50 border-transparent rounded-xl pl-11 pr-4 focus:bg-white focus:ring-2 focus:ring-[#7ca29d]/40 focus:border-[#7ca29d] transition-all text-slate-800 placeholder:text-gray-400 outline-none text-sm"
                                             placeholder="nama@email.com"
                                             type="email"
                                             value={email}
@@ -188,7 +188,7 @@ export default function LoginPage() {
                                             lock
                                         </span>
                                         <input
-                                            className="w-full h-[52px] bg-gray-50 border-transparent rounded-xl pl-12 pr-12 focus:bg-white focus:ring-2 focus:ring-[#7ca29d]/40 focus:border-[#7ca29d] transition-all text-slate-800 placeholder:text-gray-400 outline-none text-sm"
+                                            className="w-full h-[46px] sm:h-[52px] bg-gray-50 border-transparent rounded-xl pl-11 pr-12 focus:bg-white focus:ring-2 focus:ring-[#7ca29d]/40 focus:border-[#7ca29d] transition-all text-slate-800 placeholder:text-gray-400 outline-none text-sm"
                                             placeholder="••••••••"
                                             type={showPassword ? "text" : "password"}
                                             value={password}
@@ -209,7 +209,7 @@ export default function LoginPage() {
 
                                 {/* Submit Button */}
                                 <button
-                                    className="w-full h-14 bg-[#7ca29d] text-white font-bold text-lg rounded-xl hover:bg-[#6b918c] transition-all shadow-lg shadow-[#7ca29d]/20 mt-4 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    className="w-full h-11 sm:h-12 bg-[#7ca29d] text-white font-bold text-sm sm:text-base rounded-xl hover:bg-[#6b918c] transition-all shadow-lg shadow-[#7ca29d]/20 mt-2 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                     type="submit"
                                     disabled={loading}
                                 >
@@ -225,8 +225,8 @@ export default function LoginPage() {
                             </form>
 
                             {/* Register Link */}
-                            <div className="mt-8 text-center">
-                                <p className="text-gray-500 text-sm">
+                            <div className="mt-5 text-center">
+                                <p className="text-gray-500 text-xs sm:text-sm">
                                     Belum punya akun?{" "}
                                     <Link
                                         className="text-[#7ca29d] font-bold hover:underline ml-1"
@@ -238,7 +238,7 @@ export default function LoginPage() {
                             </div>
 
                             {/* Terms */}
-                            <p className="mt-12 text-center text-[10px] text-gray-400 leading-relaxed">
+                            <p className="mt-5 text-center text-[10px] text-gray-400 leading-relaxed">
                                 © 2026 Tabungan Bersama. Aman dan Terpercaya.
                             </p>
                         </div>

@@ -5,7 +5,6 @@ interface FinancialInsightsProps {
 export default function FinancialInsights({ data = [] }: FinancialInsightsProps) {
     const totalRaw = data.reduce((sum, item) => sum + parseFloat(item.totalAmount), 0);
 
-    // Sort data to keep colors consistent (e.g. current user first if possible, or just by alpha)
     const sortedData = [...data].sort((a, b) => b.totalAmount - a.totalAmount);
 
     const getStrokeProps = (idx: number) => {
@@ -26,33 +25,28 @@ export default function FinancialInsights({ data = [] }: FinancialInsightsProps)
     };
 
     return (
-        <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-            <h3 className="text-lg font-bold serif-vibe mb-6">Wawasan Keuangan</h3>
+        <div className="bg-white p-4 md:p-8 rounded-2xl md:rounded-3xl shadow-sm border border-slate-100">
+            <h3 className="text-sm md:text-lg font-bold serif-vibe mb-3 md:mb-6">Wawasan Keuangan</h3>
 
-            <div className="relative w-48 h-48 mx-auto mb-8">
-                <svg
-                    className="w-full h-full transform -rotate-90"
-                    viewBox="0 0 100 100"
-                >
+            {/* Donut Chart */}
+            <div className="relative w-32 h-32 md:w-48 md:h-48 mx-auto mb-3 md:mb-8">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                     {/* Background Circle */}
                     <circle
                         className="text-slate-100"
-                        cx="50"
-                        cy="50"
+                        cx="50" cy="50"
                         fill="transparent"
                         r="40"
                         stroke="currentColor"
                         strokeWidth="12"
                     />
-
                     {sortedData.map((item, idx) => {
                         const { strokeDasharray, rotation } = getStrokeProps(idx);
                         return (
                             <circle
                                 key={item.userId}
                                 className={idx === 0 ? "text-[#7ca29d]" : "text-amber-400"}
-                                cx="50"
-                                cy="50"
+                                cx="50" cy="50"
                                 fill="transparent"
                                 r="40"
                                 stroke="currentColor"
@@ -67,20 +61,19 @@ export default function FinancialInsights({ data = [] }: FinancialInsightsProps)
                     })}
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-xs font-bold text-slate-400 uppercase text-center px-4">
+                    <span className="hidden md:block text-xs font-bold text-slate-400 uppercase text-center px-4">
                         Tabungan Bulan Ini
                     </span>
-                    <span className="text-xl font-extrabold">
+                    <span className="text-base md:text-xl font-extrabold">
                         {totalRaw > 0 ? '100%' : '0%'}
                     </span>
                 </div>
             </div>
 
-            <div className="space-y-4">
-                <p className="text-sm font-semibold text-center text-slate-500 mb-4">
-                    {totalRaw > 0
-                        ? "Kontribusi tabungan bulan ini"
-                        : "Belum ada tabungan bulan ini"}
+            {/* Contributor List */}
+            <div className="space-y-2 md:space-y-4">
+                <p className="text-xs md:text-sm font-semibold text-center text-slate-500 mb-2 md:mb-4">
+                    {totalRaw > 0 ? "Kontribusi tabungan bulan ini" : "Belum ada tabungan bulan ini"}
                 </p>
 
                 {sortedData.map((item, idx) => {
@@ -90,15 +83,15 @@ export default function FinancialInsights({ data = [] }: FinancialInsightsProps)
                     return (
                         <div
                             key={item.userId}
-                            className={`flex items-center justify-between p-3 rounded-xl ${isPrimary ? 'bg-[#e0f2f1]' : 'bg-[#fef3c7]'}`}
+                            className={`flex items-center justify-between p-2 md:p-3 rounded-lg md:rounded-xl ${isPrimary ? 'bg-[#e0f2f1]' : 'bg-[#fef3c7]'}`}
                         >
-                            <div className="flex items-center gap-3">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${isPrimary ? 'bg-[#7ca29d]' : 'bg-amber-400'}`}>
+                            <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                                <div className={`w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-white text-[10px] md:text-xs font-bold shrink-0 ${isPrimary ? 'bg-[#7ca29d]' : 'bg-amber-400'}`}>
                                     {item.userName?.[0] || '?'}
                                 </div>
-                                <span className="text-sm font-bold text-slate-700">{item.userName}</span>
+                                <span className="text-xs md:text-sm font-bold text-slate-700 truncate">{item.userName}</span>
                             </div>
-                            <span className={`text-sm font-black ${isPrimary ? 'text-[#7ca29d]' : 'text-amber-600'}`}>
+                            <span className={`text-xs md:text-sm font-black shrink-0 ml-1 ${isPrimary ? 'text-[#7ca29d]' : 'text-amber-600'}`}>
                                 {percentage}%
                             </span>
                         </div>
@@ -106,7 +99,7 @@ export default function FinancialInsights({ data = [] }: FinancialInsightsProps)
                 })}
 
                 {sortedData.length === 0 && (
-                    <div className="py-4 text-center">
+                    <div className="py-3 text-center">
                         <p className="text-xs text-slate-400 font-medium italic">Data tidak tersedia</p>
                     </div>
                 )}

@@ -27,29 +27,32 @@ export default function HistoryItem({
 }: HistoryItemProps) {
     return (
         <div
-            className={`flex items-center justify-between p-4 bg-white rounded-2xl border-l-4 ${borderColor} shadow-sm`}
+            className={`flex items-center justify-between p-2.5 md:p-4 bg-white rounded-xl md:rounded-2xl border-l-4 ${borderColor} shadow-sm gap-2`}
         >
-            <div className="flex items-center gap-4">
+            {/* Left: icon + info */}
+            <div className="flex items-center gap-2 md:gap-4 min-w-0">
                 <div
-                    className={`w-10 h-10 rounded-full ${iconBg} flex items-center justify-center`}
+                    className={`w-8 h-8 md:w-10 md:h-10 rounded-full ${iconBg} flex items-center justify-center shrink-0`}
                 >
-                    <span className={`material-symbols-outlined ${iconColor}`}>
+                    <span className={`material-symbols-outlined ${iconColor} text-base md:text-[24px]`}>
                         {icon}
                     </span>
                 </div>
-                <div>
-                    <p className="font-bold text-sm">
+                <div className="min-w-0">
+                    <p className="font-bold text-xs md:text-sm truncate">
                         {name}
                         {isYou && " (Kamu)"}
                     </p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-[10px] md:text-xs text-slate-400 truncate">
                         {source} • {time}
                     </p>
                 </div>
             </div>
-            <div className="text-right">
-                <p className={`font-extrabold ${amountColor} text-lg`}>{amount}</p>
-                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+
+            {/* Right: amount + destination */}
+            <div className="text-right shrink-0 max-w-[42%]">
+                <p className={`font-extrabold ${amountColor} text-xs md:text-base leading-tight`}>{amount}</p>
+                <p className="text-[9px] md:text-[10px] uppercase font-bold text-slate-400 tracking-wide truncate">
                     {destination}
                 </p>
             </div>

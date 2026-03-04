@@ -1,0 +1,26 @@
+{
+    "name": "Tabungan Bersama",
+    "short_name": "Tabungan",
+    "description": "Kelola keuangan lebih romantis dan transparan bersama pasangan halalmu",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#fcfbf7",
+    "theme_color": "#047857",
+    "orientation": "portrait",
+    "scope": "/",
+    "lang": "id",
+    "icons": [
+        {
+            "src": "/icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

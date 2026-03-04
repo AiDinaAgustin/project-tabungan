@@ -104,20 +104,20 @@ export default function Home() {
         target={targetForDetail}
       />
 
-      <main className={`max-w-7xl mx-auto px-8 py-10 ${isAnyModalOpen ? "blur-sm pointer-events-none" : ""}`}>
+      <main className={`max-w-7xl mx-auto px-4 py-5 md:px-8 md:py-10 ${isAnyModalOpen ? "blur-sm pointer-events-none" : ""}`}>
         {/* Hero Glassmorphism Card */}
         <HeroCard
           totalAmount={`Rp ${targets.reduce((sum, t) => sum + parseFloat(t.collectedAmount), 0).toLocaleString("id-ID")}`}
           monthlyChange={`+Rp ${insights.reduce((sum, i) => sum + Number(i.totalAmount), 0).toLocaleString("id-ID")}`}
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-12">
           {/* Main Content Area */}
-          <div className="lg:col-span-8 space-y-12">
+          <div className="lg:col-span-8 space-y-6 md:space-y-12">
             {/* Goals Section */}
             <section>
-              <div className="flex items-center justify-between mb-8 px-2">
-                <h2 className="text-2xl font-bold serif-vibe">
+              <div className="flex items-center justify-between mb-4 md:mb-8 px-1">
+                <h2 className="text-lg md:text-2xl font-bold serif-vibe">
                   {user?.partner ? "Tujuan Kita" : "Tujuan Saya"}
                 </h2>
                 <a href="/target" className="text-sm font-bold text-[#7ca29d] flex items-center gap-1">
@@ -127,7 +127,7 @@ export default function Home() {
                   </span>
                 </a>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-3 md:gap-6">
                 {loading ? (
                   <p className="col-span-full text-center text-slate-400">Memuat tujuan...</p>
                 ) : targets.length > 0 ? (
@@ -166,8 +166,8 @@ export default function Home() {
 
             {/* History Section */}
             <section>
-              <div className="flex items-center justify-between mb-8 px-2">
-                <h2 className="text-2xl font-bold serif-vibe">
+              <div className="flex items-center justify-between mb-4 md:mb-8 px-1">
+                <h2 className="text-lg md:text-2xl font-bold serif-vibe">
                   Riwayat Tabungan
                 </h2>
               </div>
@@ -205,7 +205,7 @@ export default function Home() {
           </div>
 
           {/* Sidebar */}
-          <aside className="lg:col-span-4 space-y-8">
+          <aside className="lg:col-span-4 space-y-4 md:space-y-8">
             <FinancialInsights data={insights} />
             {!user?.partner && <InvitePartner />}
             <TipsCard />

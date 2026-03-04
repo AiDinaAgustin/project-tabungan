@@ -46,17 +46,21 @@ export default function Navbar() {
     }, []);
 
     return (
-        <nav className="sticky top-0 z-50 px-8 py-4 bg-white/70 backdrop-blur-md border-b border-slate-200/50">
+        <nav className="sticky top-0 z-50 px-4 md:px-8 py-2.5 md:py-4 bg-white/70 backdrop-blur-md border-b border-slate-200/50">
             <div className="max-w-7xl mx-auto flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#7ca29d] rounded-xl flex items-center justify-center text-white shadow-lg shadow-[#7ca29d]/20">
-                        <span className="material-symbols-outlined">favorite</span>
+                {/* Logo */}
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 md:w-10 md:h-10 bg-[#7ca29d] rounded-xl flex items-center justify-center text-white shadow-lg shadow-[#7ca29d]/20 shrink-0">
+                        <span className="material-symbols-outlined text-[18px] md:text-[24px]">favorite</span>
                     </div>
-                    <h2 className="text-xl font-extrabold tracking-tight serif-vibe text-[#7ca29d]">
+                    <h2 className="text-sm md:text-xl font-extrabold tracking-tight serif-vibe text-[#7ca29d] whitespace-nowrap">
                         Tabungan Bersama
                     </h2>
                 </div>
-                <div className="flex items-center gap-8">
+
+                {/* Right Section */}
+                <div className="flex items-center gap-3 md:gap-8">
+                    {/* Nav Links — desktop only */}
                     <div className="hidden md:flex items-center gap-6 text-sm font-semibold">
                         {navItems.map((item) => (
                             <Link
@@ -72,49 +76,44 @@ export default function Navbar() {
                             </Link>
                         ))}
                     </div>
-                    <div className="flex items-center gap-4 pl-6 border-l border-slate-200 relative" ref={dropdownRef}>
+
+                    <div className="flex items-center gap-2 md:gap-4 md:pl-6 md:border-l md:border-slate-200 relative" ref={dropdownRef}>
                         {/* Notifications Button */}
-                        <button className="relative w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:text-[#7ca29d] transition-colors">
-                            <span className="material-symbols-outlined">notifications</span>
-                            <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                        <button className="relative w-8 h-8 md:w-10 md:h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:text-[#7ca29d] transition-colors">
+                            <span className="material-symbols-outlined text-[18px] md:text-[24px]">notifications</span>
+                            <span className="absolute top-1.5 right-2 md:top-2 md:right-2.5 w-1.5 h-1.5 md:w-2 md:h-2 bg-red-500 rounded-full border-2 border-white"></span>
                         </button>
 
                         {/* Profile Trigger */}
                         <button
                             onClick={() => setIsProfileOpen(!isProfileOpen)}
-                            className={`relative flex items-center gap-2 pl-2 pr-4 py-1.5 bg-white rounded-full shadow-md border border-slate-200/50 transition-all ${isProfileOpen ? "ring-2 ring-[#7ca29d]/20" : ""}`}
+                            className={`relative flex items-center gap-1.5 pl-1.5 pr-2.5 md:pl-2 md:pr-4 py-1 md:py-1.5 bg-white rounded-full shadow-md border border-slate-200/50 transition-all ${isProfileOpen ? "ring-2 ring-[#7ca29d]/20" : ""}`}
                         >
-                            <div className="flex -space-x-2.5">
-                                <div
-                                    className="w-8 h-8 rounded-full border-2 border-white bg-[#7ca29d] flex items-center justify-center text-[10px] text-white font-bold shadow-sm"
-                                >
+                            <div className="flex -space-x-2">
+                                <div className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-white bg-[#7ca29d] flex items-center justify-center text-[9px] md:text-[10px] text-white font-bold shadow-sm">
                                     {user?.name?.[0] || "?"}
                                 </div>
                                 {user?.partner && (
-                                    <div
-                                        className="w-8 h-8 rounded-full border-2 border-white bg-amber-500 flex items-center justify-center text-[10px] text-white font-bold shadow-sm"
-                                    >
+                                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-white bg-amber-500 flex items-center justify-center text-[9px] md:text-[10px] text-white font-bold shadow-sm">
                                         {user.partner.name?.[0] || "?"}
                                     </div>
                                 )}
                             </div>
-                            <span className="material-symbols-outlined text-slate-400 text-sm">
+                            <span className="material-symbols-outlined text-slate-400 text-xs md:text-sm">
                                 keyboard_arrow_down
                             </span>
                         </button>
 
                         {/* Profile Popup/Dropdown */}
                         {isProfileOpen && (
-                            <div className="absolute top-14 right-0 w-80 bg-white/95 backdrop-blur-xl rounded-[20px] shadow-2xl border border-slate-100 z-50 overflow-hidden text-left origin-top-right transition-all">
-                                <div className="p-5 bg-slate-50/50 border-b border-slate-200/40">
-                                    <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-4">
+                            <div className="absolute top-11 md:top-14 right-0 w-[min(320px,calc(100vw-2rem))] bg-white/95 backdrop-blur-xl rounded-[20px] shadow-2xl border border-slate-100 z-50 overflow-hidden text-left origin-top-right transition-all">
+                                <div className="p-4 md:p-5 bg-slate-50/50 border-b border-slate-200/40">
+                                    <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-3 md:mb-4">
                                         {user?.partner ? "Profil Bersama" : "Profil Saya"}
                                     </p>
                                     <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div
-                                                className="w-11 h-11 rounded-full border-2 border-white shadow-sm bg-[#7ca29d] flex items-center justify-center text-white font-bold"
-                                            >
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="w-9 h-9 md:w-11 md:h-11 rounded-full border-2 border-white shadow-sm bg-[#7ca29d] flex items-center justify-center text-white font-bold text-sm">
                                                 {user?.name?.[0] || "?"}
                                             </div>
                                             <div className="flex flex-col">
@@ -126,14 +125,12 @@ export default function Navbar() {
                                         {user?.partner ? (
                                             <>
                                                 <span className="material-symbols-outlined text-slate-300">link</span>
-                                                <div className="flex items-center gap-3 text-right">
+                                                <div className="flex items-center gap-2.5 text-right">
                                                     <div className="flex flex-col">
                                                         <span className="text-sm font-bold text-slate-800">{user.partner.name}</span>
                                                         <span className="text-[10px] text-amber-500 font-bold uppercase">Partner</span>
                                                     </div>
-                                                    <div
-                                                        className="w-11 h-11 rounded-full border-2 border-white shadow-sm bg-amber-500 flex items-center justify-center text-white font-bold"
-                                                    >
+                                                    <div className="w-9 h-9 md:w-11 md:h-11 rounded-full border-2 border-white shadow-sm bg-amber-500 flex items-center justify-center text-white font-bold text-sm">
                                                         {user.partner.name?.[0] || "?"}
                                                     </div>
                                                 </div>
@@ -150,7 +147,7 @@ export default function Navbar() {
                                 <div className="p-2 border-t border-slate-50 bg-slate-50/50">
                                     <button
                                         onClick={handleLogout}
-                                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 transition-colors group"
+                                        className="w-full flex items-center gap-3 px-4 py-2.5 md:py-3 rounded-xl hover:bg-red-50 transition-colors group"
                                     >
                                         <span className="material-symbols-outlined text-red-400 font-light group-hover:text-red-500 transition-colors">
                                             logout

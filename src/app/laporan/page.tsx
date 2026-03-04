@@ -44,8 +44,26 @@ export default function LaporanPage() {
         setIsHistoryModalOpen(true);
     };
 
+    // Filter history berdasarkan activeFilter
+    const getFilteredHistory = () => {
+        const now = new Date();
+        return history.filter(item => {
+            const date = new Date(item.createdAt);
+            if (activeFilter === "Bulan Ini") {
+                return date.getMonth() === now.getMonth() &&
+                    date.getFullYear() === now.getFullYear();
+            } else if (activeFilter === "3 Bulan") {
+                const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+                return date >= threeMonthsAgo;
+            } else { // "Tahun Ini"
+                return date.getFullYear() === now.getFullYear();
+            }
+        });
+    };
+
     // Helper to group by month
     const processHistory = () => {
+        const sourceHistory = getFilteredHistory(); // 👈 pakai data yang sudah difilter
         const monthlyData: Record<string, {
             month: string,
             fullMonth: string,
@@ -59,7 +77,7 @@ export default function LaporanPage() {
         const currentUserId = user?.id;
         const partnerId = user?.partnerId;
 
-        history.forEach(item => {
+        sourceHistory.forEach(item => {
             const date = new Date(item.createdAt);
             const monthShort = date.toLocaleString('id-ID', { month: 'short' });
             const monthFull = date.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
@@ -168,23 +186,23 @@ export default function LaporanPage() {
                 history={filteredHistory}
             />
 
-            <main className={`max-w-7xl mx-auto px-8 py-10 transition-all ${isAnyModalOpen ? "blur-sm pointer-events-none" : ""}`}>
+            <main className={`max-w-7xl mx-auto px-4 py-5 md:px-8 md:py-10 transition-all ${isAnyModalOpen ? "blur-sm pointer-events-none" : ""}`}>
                 {/* Header */}
-                <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+                <header className="flex flex-col md:flex-row md:items-end justify-between gap-3 mb-6 md:mb-10">
                     <div>
-                        <h1 className="text-4xl font-extrabold serif-vibe mb-2">
+                        <h1 className="text-2xl md:text-4xl font-extrabold serif-vibe mb-1 md:mb-2">
                             Laporan Keuangan
                         </h1>
-                        <p className="text-slate-500 font-medium">
+                        <p className="text-slate-500 text-sm md:text-base font-medium">
                             Analisis pertumbuhan tabungan {user?.partnerId ? "masa depan kita" : "masa depan Anda"}
                         </p>
                     </div>
-                    <div className="flex items-center gap-2 p-1 bg-white rounded-2xl shadow-sm border border-slate-100">
+                    <div className="flex items-center gap-1 p-1 bg-white rounded-md shadow-sm border border-slate-100">
                         {filters.map((filter) => (
                             <button
                                 key={filter}
                                 onClick={() => setActiveFilter(filter)}
-                                className={`px-4 py-2 text-sm font-bold rounded-xl transition-all ${activeFilter === filter
+                                className={`px-3 py-1.5 text-xs md:text-sm font-bold rounded-md transition-all ${activeFilter === filter
                                     ? "bg-[#7ca29d] text-white"
                                     : "text-slate-500 hover:bg-slate-50"
                                     }`}
@@ -203,7 +221,7 @@ export default function LaporanPage() {
                 ) : (
                     <>
                         {/* Charts Grid */}
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8 mb-6 md:mb-12">
                             <div className="lg:col-span-8">
                                 <MonthlyBarChart
                                     data={chartData.length > 0 ? chartData : [{ month: "N/A", partnerA: 0, partnerB: 0 }]}

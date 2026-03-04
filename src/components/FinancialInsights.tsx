@@ -25,7 +25,7 @@ export default function FinancialInsights({ data = [] }: FinancialInsightsProps)
     };
 
     return (
-        <div className="bg-white p-4 md:p-8 rounded-2xl md:rounded-3xl shadow-sm border border-slate-100">
+        <div className="bg-white p-4 md:p-8 rounded-md shadow-sm border border-slate-100">
             <h3 className="text-sm md:text-lg font-bold serif-vibe mb-3 md:mb-6">Wawasan Keuangan</h3>
 
             {/* Donut Chart */}
@@ -83,7 +83,7 @@ export default function FinancialInsights({ data = [] }: FinancialInsightsProps)
                     return (
                         <div
                             key={item.userId}
-                            className={`flex items-center justify-between p-2 md:p-3 rounded-lg md:rounded-xl ${isPrimary ? 'bg-[#e0f2f1]' : 'bg-[#fef3c7]'}`}
+                            className={`flex items-center justify-between p-2 md:p-3 rounded-md ${isPrimary ? 'bg-[#e0f2f1]' : 'bg-[#fef3c7]'}`}
                         >
                             <div className="flex items-center gap-2 md:gap-3 min-w-0">
                                 <div className={`w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-white text-[10px] md:text-xs font-bold shrink-0 ${isPrimary ? 'bg-[#7ca29d]' : 'bg-amber-400'}`}>

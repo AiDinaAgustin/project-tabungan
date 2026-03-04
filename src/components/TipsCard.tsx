@@ -1,6 +1,6 @@
 export default function TipsCard() {
     return (
-        <div className="p-6 rounded-3xl bg-emerald-50 border border-emerald-100">
+        <div className="p-4 md:p-6 rounded-md bg-emerald-50 border border-emerald-100">
             <div className="flex gap-3">
                 <span className="material-symbols-outlined text-emerald-600">
                     lightbulb

@@ -157,7 +157,7 @@ export default function Home() {
                     );
                   })
                 ) : (
-                  <div className="col-span-full p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center">
+                  <div className="col-span-full p-8 border-2 border-dashed border-slate-200 rounded-md text-center">
                     <p className="text-slate-400">Belum ada target. Ayo buat satu!</p>
                   </div>
                 )}

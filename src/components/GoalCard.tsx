@@ -47,7 +47,7 @@ export default function GoalCard({
     }, []);
 
     return (
-        <div className="group bg-white p-3 md:p-6 rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all border border-slate-100 relative">
+        <div className="group bg-white p-3 md:p-6 rounded-md shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all border border-slate-100 relative">
             {/* Menu Button */}
             <div className="absolute top-2.5 right-2.5 md:top-6 md:right-6" ref={menuRef}>
                 <button
@@ -58,7 +58,7 @@ export default function GoalCard({
                 </button>
 
                 {isMenuOpen && (
-                    <div className="absolute top-full right-0 mt-1 w-36 bg-white rounded-xl shadow-xl border border-slate-100 py-1 z-30">
+                    <div className="absolute top-full right-0 mt-1 w-36 bg-white rounded-md shadow-xl border border-slate-100 py-1 z-30">
                         <button
                             onClick={() => { setIsMenuOpen(false); onDetail?.(); }}
                             className="w-full px-3 py-1.5 text-left flex items-center gap-2 hover:bg-[#7ca29d]/5 transition-colors group"
@@ -85,7 +85,7 @@ export default function GoalCard({
             </div>
 
             {/* Icon */}
-            <div className={`w-9 h-9 md:w-14 md:h-14 ${iconBg} rounded-lg md:rounded-xl flex items-center justify-center mb-2.5 md:mb-6 transition-transform group-hover:scale-110`}>
+            <div className={`w-9 h-9 md:w-14 md:h-14 ${iconBg} rounded-md flex items-center justify-center mb-2.5 md:mb-6 transition-transform group-hover:scale-110`}>
                 <span className={`material-symbols-outlined ${iconColor} text-xl md:text-3xl`}>
                     {icon}
                 </span>
@@ -111,7 +111,7 @@ export default function GoalCard({
             <button
                 onClick={onSaveClick}
                 disabled={progress >= 100}
-                className={`w-full py-1.5 md:py-3 rounded-lg md:rounded-xl font-bold transition-all flex items-center justify-center gap-1 md:gap-2 text-xs md:text-sm ${progress >= 100
+                className={`w-full py-1.5 md:py-3 rounded-md font-bold transition-all flex items-center justify-center gap-1 md:gap-2 text-xs md:text-sm ${progress >= 100
                     ? "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none"
                     : isPrimary
                         ? "bg-[#7ca29d] text-white shadow-lg shadow-[#7ca29d]/20 hover:bg-[#7ca29d]/90"

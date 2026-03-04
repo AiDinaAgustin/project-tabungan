@@ -27,7 +27,7 @@ export default function HistoryItem({
 }: HistoryItemProps) {
     return (
         <div
-            className={`flex items-center justify-between p-2.5 md:p-4 bg-white rounded-xl md:rounded-2xl border-l-4 ${borderColor} shadow-sm gap-2`}
+            className={`flex items-center justify-between p-2.5 md:p-4 bg-white rounded-md border-l-4 ${borderColor} shadow-sm gap-2`}
         >
             {/* Left: icon + info */}
             <div className="flex items-center gap-2 md:gap-4 min-w-0">

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import MonthlyBarChart from "@/components/MonthlyBarChart";
+import MonthlyLineChart from "@/components/MonthlyLineChart";
 import AllocationChart from "@/components/AllocationChart";
 import MonthlySummaryTable from "@/components/MonthlySummaryTable";
 import MonthlyHistoryModal from "@/components/MonthlyHistoryModal";
@@ -11,14 +11,18 @@ import { getSavingsHistory } from "@/lib/actions/savings";
 import { getCurrentUser } from "@/lib/actions/auth";
 
 export default function LaporanPage() {
-    const [activeFilter, setActiveFilter] = useState("Bulan Ini");
+    const [activeFilter, setActiveFilter] = useState("6 Bulan");
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [history, setHistory] = useState<any[]>([]);
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
     const [selectedMonthForHistory, setSelectedMonthForHistory] = useState("");
     const [filteredHistory, setFilteredHistory] = useState<any[]>([]);
-    const filters = ["Bulan Ini", "3 Bulan", "Tahun Ini"];
+    const filters = ["6 Bulan", "Tahun"];
+
+    const availableYears = Array.from(new Set(history.map(item => new Date(item.createdAt).getFullYear()))).sort((a, b) => b - a);
+    if (availableYears.length === 0) availableYears.push(new Date().getFullYear());
 
     useEffect(() => {
         const fetchData = async () => {
@@ -49,14 +53,12 @@ export default function LaporanPage() {
         const now = new Date();
         return history.filter(item => {
             const date = new Date(item.createdAt);
-            if (activeFilter === "Bulan Ini") {
-                return date.getMonth() === now.getMonth() &&
-                    date.getFullYear() === now.getFullYear();
-            } else if (activeFilter === "3 Bulan") {
-                const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1);
-                return date >= threeMonthsAgo;
-            } else { // "Tahun Ini"
-                return date.getFullYear() === now.getFullYear();
+            if (activeFilter === "6 Bulan") {
+                // Get data from 5 months ago up to now (total 6 months)
+                const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+                return date >= sixMonthsAgo;
+            } else { // "Tahun"
+                return date.getFullYear() === selectedYear;
             }
         });
     };
@@ -210,6 +212,17 @@ export default function LaporanPage() {
                                 {filter}
                             </button>
                         ))}
+                        {activeFilter === "Tahun" && (
+                            <select
+                                value={selectedYear}
+                                onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                                className="ml-2 px-2 py-1.5 text-xs md:text-sm font-bold text-slate-600 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:border-[#7ca29d]"
+                            >
+                                {availableYears.map(year => (
+                                    <option key={year} value={year}>{year}</option>
+                                ))}
+                            </select>
+                        )}
                     </div>
                 </header>
 
@@ -223,7 +236,7 @@ export default function LaporanPage() {
                         {/* Charts Grid */}
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8 mb-6 md:mb-12">
                             <div className="lg:col-span-8">
-                                <MonthlyBarChart
+                                <MonthlyLineChart
                                     data={chartData.length > 0 ? chartData : [{ month: "N/A", partnerA: 0, partnerB: 0 }]}
                                     partnerNames={[user?.name?.split(' ')[0] || "Anda", user?.partnerName?.split(' ')[0] || "Pasangan"]}
                                 />

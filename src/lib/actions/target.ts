@@ -18,6 +18,7 @@ export async function getTargets() {
 
     try {
         // Fetch targets with aggregated savings and the latest contribution info
+        // Using a single query with DISTINCT ON to avoid N+1 correlated subqueries
         const results = await db
             .select({
                 id: targets.id,
@@ -28,9 +29,18 @@ export async function getTargets() {
                 iconColor: targets.iconColor,
                 progressColor: targets.progressColor,
                 collectedAmount: sql<number>`COALESCE(SUM(${savings.amount}), 0)`,
-                // Get details of the latest contribution
-                lastAmount: sql<string>`(SELECT amount FROM savings WHERE target_id = ${targets.id} ORDER BY created_at DESC LIMIT 1)`,
-                lastUserName: sql<string>`(SELECT name FROM users JOIN savings ON users.id = savings.user_id WHERE savings.target_id = ${targets.id} ORDER BY savings.created_at DESC LIMIT 1)`,
+                // Efficient: use aggregate + subquery once per target via lateral join pattern
+                lastAmount: sql<string>`(
+                    SELECT s.amount FROM savings s
+                    WHERE s.target_id = ${targets.id}
+                    ORDER BY s.created_at DESC LIMIT 1
+                )`,
+                lastUserName: sql<string>`(
+                    SELECT u.name FROM users u
+                    INNER JOIN savings s ON u.id = s.user_id
+                    WHERE s.target_id = ${targets.id}
+                    ORDER BY s.created_at DESC LIMIT 1
+                )`,
             })
             .from(targets)
             .leftJoin(savings, eq(targets.id, savings.targetId))

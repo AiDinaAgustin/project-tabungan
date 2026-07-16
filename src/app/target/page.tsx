@@ -8,6 +8,7 @@ import EditTargetModal from "@/components/EditTargetModal";
 import SavingsModal from "@/components/SavingsModal";
 import TargetDetailModal from "@/components/TargetDetailModal";
 import WithdrawModal from "@/components/WithdrawModal";
+import TargetCalculator from "@/components/TargetCalculator";
 import { getTargets, deleteTarget } from "@/lib/actions/target";
 import { getCurrentUser } from "@/lib/actions/auth";
 import Footer from "@/components/Footer";
@@ -25,6 +26,20 @@ export default function TargetPage() {
     const [targetForWithdraw, setTargetForWithdraw] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<any>(null);
+    // Multi-select calculator state
+    const [isSelectMode, setIsSelectMode] = useState(false);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+    const toggleSelectMode = () => {
+        setIsSelectMode((prev) => !prev);
+        setSelectedIds([]);
+    };
+
+    const toggleSelectTarget = (id: string) => {
+        setSelectedIds((prev) =>
+            prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+        );
+    };
 
     const fetchData = async () => {
         setLoading(true);
@@ -127,13 +142,32 @@ export default function TargetPage() {
                                 : "Kelola dan pantau setiap impian yang Anda bangun."}
                         </p>
                     </div>
-                    <button
-                        onClick={() => setIsNewTargetModalOpen(true)}
-                        className="flex items-center gap-1.5 bg-[#7ca29d] text-white px-3 py-2 md:px-6 md:py-3.5 rounded-md font-bold text-xs md:text-base shadow-md shadow-[#7ca29d]/20 hover:bg-[#7ca29d]/90 transition-all active:scale-[0.98] self-start"
-                    >
-                        <span className="material-symbols-outlined text-base md:text-[24px]">add_circle</span>
-                        Tambah Target Baru
-                    </button>
+                    <div className="flex items-center gap-2 self-start">
+                        {/* Toggle calculator mode */}
+                        <button
+                            onClick={toggleSelectMode}
+                            title={isSelectMode ? "Keluar mode hitung" : "Hitung gabungan beberapa target"}
+                            className={`flex items-center gap-1.5 px-3 py-2 md:px-5 md:py-3.5 rounded-md font-bold text-xs md:text-sm border transition-all active:scale-[0.98] ${
+                                isSelectMode
+                                    ? "bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100"
+                                    : "bg-white border-slate-200 text-slate-600 hover:border-[#7ca29d] hover:text-[#7ca29d]"
+                            }`}
+                        >
+                            <span className="material-symbols-outlined text-base md:text-[20px]">
+                                {isSelectMode ? "close" : "calculate"}
+                            </span>
+                            {isSelectMode
+                                ? `Batal (${selectedIds.length} dipilih)`
+                                : "Hitung Gabungan"}
+                        </button>
+                        <button
+                            onClick={() => setIsNewTargetModalOpen(true)}
+                            className="flex items-center gap-1.5 bg-[#7ca29d] text-white px-3 py-2 md:px-6 md:py-3.5 rounded-md font-bold text-xs md:text-base shadow-md shadow-[#7ca29d]/20 hover:bg-[#7ca29d]/90 transition-all active:scale-[0.98]"
+                        >
+                            <span className="material-symbols-outlined text-base md:text-[24px]">add_circle</span>
+                            Tambah Target Baru
+                        </button>
+                    </div>
                 </header>
 
                 {/* Target Cards Grid */}
@@ -158,28 +192,59 @@ export default function TargetPage() {
                                 textColor: target.lastUserName === user?.name ? "text-[#7ca29d]" : "text-amber-600",
                             }] : [];
 
+                            const isSelected = selectedIds.includes(target.id);
+
                             return (
-                                <TargetGoalCard
-                                    key={target.id}
-                                    icon={target.icon}
-                                    iconBg={target.iconBg}
-                                    iconColor={target.iconColor}
-                                    title={target.title}
-                                    subtitle={progress >= 100 ? "Target Tercapai! 🎉" : "Saling bantu mencapainya"}
-                                    subtitleColor={progress >= 100 ? "text-emerald-600 font-bold" : "text-slate-500"}
-                                    progress={progress}
-                                    progressColor={target.progressColor}
-                                    collected={`Rp ${collected.toLocaleString("id-ID")}`}
-                                    collectedColor={target.iconColor}
-                                    target={`Rp ${goal.toLocaleString("id-ID")}`}
-                                    buttonVariant="primary"
-                                    contributions={contributions}
-                                    onSaveClick={() => handleSaveClick(target)}
-                                    onEdit={() => handleEditClick(target)}
-                                    onDelete={() => handleDeleteClick(target.id)}
-                                    onDetail={() => handleDetailClick(target)}
-                                    onWithdraw={() => handleWithdrawClick(target)}
-                                />
+                                <div key={target.id} className="relative">
+                                    {/* Checkbox overlay in select mode */}
+                                    {isSelectMode && (
+                                        <button
+                                            onClick={() => toggleSelectTarget(target.id)}
+                                            className={`absolute top-3 right-3 z-20 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all shadow-sm ${
+                                                isSelected
+                                                    ? "bg-[#7ca29d] border-[#7ca29d] scale-110"
+                                                    : "bg-white border-slate-300 hover:border-[#7ca29d]"
+                                            }`}
+                                        >
+                                            {isSelected && (
+                                                <span className="material-symbols-outlined text-white text-sm">check</span>
+                                            )}
+                                        </button>
+                                    )}
+                                    <div
+                                        onClick={isSelectMode ? () => toggleSelectTarget(target.id) : undefined}
+                                        className={`transition-all duration-200 ${
+                                            isSelectMode
+                                                ? "cursor-pointer"
+                                                : ""
+                                        } ${
+                                            isSelected
+                                                ? "ring-2 ring-[#7ca29d] ring-offset-2 rounded-md"
+                                                : ""
+                                        }`}
+                                    >
+                                        <TargetGoalCard
+                                            icon={target.icon}
+                                            iconBg={target.iconBg}
+                                            iconColor={target.iconColor}
+                                            title={target.title}
+                                            subtitle={progress >= 100 ? "Target Tercapai! 🎉" : "Saling bantu mencapainya"}
+                                            subtitleColor={progress >= 100 ? "text-emerald-600 font-bold" : "text-slate-500"}
+                                            progress={progress}
+                                            progressColor={target.progressColor}
+                                            collected={`Rp ${collected.toLocaleString("id-ID")}`}
+                                            collectedColor={target.iconColor}
+                                            target={`Rp ${goal.toLocaleString("id-ID")}`}
+                                            buttonVariant="primary"
+                                            contributions={contributions}
+                                            onSaveClick={isSelectMode ? undefined : () => handleSaveClick(target)}
+                                            onEdit={isSelectMode ? undefined : () => handleEditClick(target)}
+                                            onDelete={isSelectMode ? undefined : () => handleDeleteClick(target.id)}
+                                            onDetail={isSelectMode ? undefined : () => handleDetailClick(target)}
+                                            onWithdraw={isSelectMode ? undefined : () => handleWithdrawClick(target)}
+                                        />
+                                    </div>
+                                </div>
                             );
                         })
                     ) : (
@@ -244,6 +309,13 @@ export default function TargetPage() {
 
             {/* Footer */}
             <Footer />
+
+            {/* Multi-target calculator panel */}
+            <TargetCalculator
+                selectedIds={selectedIds}
+                targets={targets}
+                onClose={toggleSelectMode}
+            />
         </>
     );
 }
